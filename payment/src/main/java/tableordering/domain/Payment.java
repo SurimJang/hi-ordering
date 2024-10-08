@@ -12,7 +12,7 @@ import tableordering.domain.PaymentCompleteEvent;
 @Entity
 @Table(name = "Payment_table")
 @Data
-//<<< DDD / Aggregate Root
+// <<< DDD / Aggregate Root
 public class Payment {
 
     @Id
@@ -30,82 +30,54 @@ public class Payment {
     @PostPersist
     public void onPostPersist() {
         PaymentCompleteEvent paymentCompleteEvent = new PaymentCompleteEvent(
-            this
-        );
+                this);
         paymentCompleteEvent.publishAfterCommit();
 
-        PaymentCancelledEvent paymentCancelledEvent = new PaymentCancelledEvent(
-            this
-        );
-        paymentCancelledEvent.publishAfterCommit();
+    }
+
+    @PostUpdate
+    public void onPostUpdate() {
+        switch (this.paymentStatus) {
+            case "Cancelled":
+                PaymentCancelledEvent paymentCancelledEvent = new PaymentCancelledEvent(
+                        this);
+                paymentCancelledEvent.publishAfterCommit();
+                break;
+
+            default:
+                break;
+        }
+
     }
 
     public static PaymentRepository repository() {
         PaymentRepository paymentRepository = PaymentApplication.applicationContext.getBean(
-            PaymentRepository.class
-        );
+                PaymentRepository.class);
         return paymentRepository;
     }
 
-    //<<< Clean Arch / Port Method
-    public static void paymentRequestPolicy(
-        MenuDecreasedEvent menuDecreasedEvent
-    ) {
-        //implement business logic here:
-
-        /** Example 1:  new item 
+    // <<< Clean Arch / Port Method
+    public static void paymentRequestPolicy(MenuDecreasedEvent menuDecreasedEvent) {
+        // implement business logic here:
         Payment payment = new Payment();
+        payment.setOrderId(menuDecreasedEvent.getOrderId());
+        payment.setUserId(menuDecreasedEvent.getUserId());
+        payment.setPaymentAmount(menuDecreasedEvent.getPaymentAmount());
+        payment.setPaymentStatus("Completed");
         repository().save(payment);
-
-        PaymentCompleteEvent paymentCompleteEvent = new PaymentCompleteEvent(payment);
-        paymentCompleteEvent.publishAfterCommit();
-        */
-
-        /** Example 2:  finding and process
-        
-        repository().findById(menuDecreasedEvent.get???()).ifPresent(payment->{
-            
-            payment // do something
-            repository().save(payment);
-
-            PaymentCompleteEvent paymentCompleteEvent = new PaymentCompleteEvent(payment);
-            paymentCompleteEvent.publishAfterCommit();
-
-         });
-        */
-
     }
 
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
-    public static void paymentCancelPolicy(
-        MenuIncresedEvent menuIncresedEvent
-    ) {
-        //implement business logic here:
-
-        /** Example 1:  new item 
-        Payment payment = new Payment();
-        repository().save(payment);
-
-        PaymentCancelledEvent paymentCancelledEvent = new PaymentCancelledEvent(payment);
-        paymentCancelledEvent.publishAfterCommit();
-        */
-
-        /** Example 2:  finding and process
-        
-        repository().findById(menuIncresedEvent.get???()).ifPresent(payment->{
-            
-            payment // do something
+    // >>> Clean Arch / Port Method
+    // <<< Clean Arch / Port Method
+    public static void paymentCancelPolicy(MenuIncresedEvent menuIncresedEvent) {
+        // implement business logic here:
+        repository().findByOrderId(menuIncresedEvent.getOrderId()).ifPresent(payment -> {
+            payment.setPaymentStatus("Cancelled");
             repository().save(payment);
-
-            PaymentCancelledEvent paymentCancelledEvent = new PaymentCancelledEvent(payment);
-            paymentCancelledEvent.publishAfterCommit();
-
-         });
-        */
+        });
 
     }
-    //>>> Clean Arch / Port Method
+    // >>> Clean Arch / Port Method
 
 }
-//>>> DDD / Aggregate Root
+// >>> DDD / Aggregate Root

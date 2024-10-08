@@ -9,13 +9,19 @@ import tableordering.infra.AbstractEvent;
 //<<< DDD / Domain Event
 @Data
 @ToString
-public class MenuIncresedEvent extends AbstractEvent {
+public class CookCancelledEvent extends AbstractEvent {
 
+    private Long id;
     private Long orderId;
     private Long userId;
-    private int paymentAmount;
+    private Date createdAt;
+    private String orderStatus;
 
-    public MenuIncresedEvent() {
+    public CookCancelledEvent(Shop aggregate) {
+        super(aggregate);
+    }
+
+    public CookCancelledEvent() {
         super();
     }
 }

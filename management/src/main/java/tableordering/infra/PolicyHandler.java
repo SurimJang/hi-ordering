@@ -21,24 +21,33 @@ public class PolicyHandler {
     ShopRepository shopRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void whatever(@Payload String eventString) {}
+    public void whatever(@Payload String eventString) {
+    }
 
-    @StreamListener(
-        value = KafkaProcessor.INPUT,
-        condition = "headers['type']=='OrderConfirmedEvent'"
-    )
+    @StreamListener(value = KafkaProcessor.INPUT, condition = "headers['type']=='OrderConfirmedEvent'")
     public void wheneverOrderConfirmedEvent_StartCookPolicy(
-        @Payload OrderConfirmedEvent orderConfirmedEvent
-    ) {
+            @Payload OrderConfirmedEvent orderConfirmedEvent) {
         OrderConfirmedEvent event = orderConfirmedEvent;
         System.out.println(
-            "\n\n##### listener StartCookPolicy : " +
-            orderConfirmedEvent +
-            "\n\n"
-        );
+                "\n\n##### listener StartCookPolicy : " +
+                        orderConfirmedEvent +
+                        "\n\n");
 
         // Sample Logic //
         Shop.startCookPolicy(event);
     }
+
+    @StreamListener(value = KafkaProcessor.INPUT, condition = "headers['type']=='OrderCancelledEvent'")
+    public void wheneverOrderCancelledEvent_CancelCookPolicy(
+            @Payload OrderCancelledEvent orderCancelledEvent) {
+        OrderCancelledEvent event = orderCancelledEvent;
+        System.out.println(
+                "\n\n##### listener CancelCookPolicy : " +
+                        orderCancelledEvent +
+                        "\n\n");
+
+        // Sample Logic //
+        Shop.cancelCookPolicy(event);
+    }
 }
-//>>> Clean Arch / Inbound Adaptor
+// >>> Clean Arch / Inbound Adaptor

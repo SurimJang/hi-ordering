@@ -14,4 +14,5 @@ public class OutOfStockEvent extends AbstractEvent {
     private Integer menuPrice;
     private Integer qty;
     private Long categoryId;
+    private Long orderId;
 }

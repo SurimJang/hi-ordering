@@ -11,18 +11,12 @@ import tableordering.infra.AbstractEvent;
 @ToString
 public class MenuDecreasedEvent extends AbstractEvent {
 
-    private Long id;
-    private String menuName;
-    private Integer menuPrice;
-    private Integer qty;
-    private Long categoryId;
-
-    public MenuDecreasedEvent(Menu aggregate) {
-        super(aggregate);
-    }
+    private Long orderId;
+    private Long userId;
+    private int paymentAmount;
 
     public MenuDecreasedEvent() {
         super();
     }
 }
-//>>> DDD / Domain Event
+// >>> DDD / Domain Event

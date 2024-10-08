@@ -11,9 +11,10 @@ public class OrderPlacedEvent extends AbstractEvent {
 
     private Long id;
     private Long userId;
-    private Object menuId;
+    private List<Menu> menuId;
     private Integer qty;
     private Date createdAt;
     private Date updatedAt;
     private String orderStatus;
+    private int paymentAmount;
 }
