@@ -34,7 +34,7 @@ spring:
           predicates:
             - Path=/categories/**, 
         - id: frontend
-          uri: http://localhost:8080
+          uri: http://localhost:5173
           predicates:
             - Path=/**
 #>>> API Gateway / Routes

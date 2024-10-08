@@ -56,14 +56,13 @@ import axios from 'axios';
 const username = ref('');
 const password = ref('');
 const router = useRouter();
-const HOST = "http://localhost:8080";
 
 const login = async () => {
   try {
-    const response = await axios.post(`${HOST}/api/auth/login`, {
-      username: username.value,
-      password: password.value
-    });
+    const response = await axios.post(axios.fixUrl("/users/login"), {
+    username: username.value,
+    password: password.value
+  });
 
     if (response.status === 200) {
       localStorage.setItem('store_name', response.data.store_name);
@@ -73,9 +72,9 @@ const login = async () => {
       });
     }
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error.response ? error.response.data : error.message);
   } finally {
-    console.log('항상 마지막에 실행');
+    console.log('항상 마지막에 실행', error.response ? error.response.data : error.message);
   }
 };
 

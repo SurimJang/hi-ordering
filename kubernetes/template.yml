@@ -21,22 +21,22 @@ spec:
           image: username/order:latest
           ports:
             - containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 10
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 120
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 5
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 5
 
 ---
 
@@ -61,22 +61,22 @@ spec:
           image: username/management:latest
           ports:
             - containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 10
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 120
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 5
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 5
 
 ---
 
@@ -101,22 +101,22 @@ spec:
           image: username/payment:latest
           ports:
             - containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 10
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 120
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 5
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 5
 
 ---
 
@@ -141,22 +141,22 @@ spec:
           image: username/user:latest
           ports:
             - containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 10
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 120
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 5
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 5
 
 ---
 
@@ -181,22 +181,22 @@ spec:
           image: username/menu:latest
           ports:
             - containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 10
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 120
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 5
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 5
 
 ---
 
@@ -221,22 +221,22 @@ spec:
           image: username/category:latest
           ports:
             - containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 10
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: '/actuator/health'
-              port: 8080
-            initialDelaySeconds: 120
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 5
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 5
 
 
 ---

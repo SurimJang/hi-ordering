@@ -1,5 +1,6 @@
 sudo apt-get update
 sudo apt-get install net-tools
+sudo apt-get install tree
 sudo apt install iputils-ping
 pip install httpie
 
@@ -23,6 +24,6 @@ chmod 700 get_helm.sh
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
-#  << Docker >>
+#  << Kafka >>
 cd infra
 docker-compose up
