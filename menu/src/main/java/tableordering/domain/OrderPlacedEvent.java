@@ -11,7 +11,7 @@ public class OrderPlacedEvent extends AbstractEvent {
 
     private Long id;
     private Long userId;
-    private List<Menu> menuId;
+    private List<Long> menuId;
     private Integer qty;
     private Date createdAt;
     private Date updatedAt;

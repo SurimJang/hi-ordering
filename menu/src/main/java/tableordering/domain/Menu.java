@@ -59,11 +59,11 @@ public class Menu {
         List<Menu> decreasedMenus = new ArrayList<>(); // 재고가 감소된 메뉴 리스트
 
         // 메뉴 재고 검사
-        for (Menu orderMenu : orderPlacedEvent.getMenuId()) {
-            repository().findById(orderMenu.getId()).ifPresent(menu -> {
-                if (menu.getQty() >= orderMenu.getQty()) {
+        for (Long orderMenu : orderPlacedEvent.getMenuId()) {
+            repository().findById(orderMenu).ifPresent(menu -> {
+                if (menu.getQty() >= orderPlacedEvent.getQty()) {
                     // 재고 감소
-                    menu.setQty(menu.getQty() - orderMenu.getQty());
+                    menu.setQty(menu.getQty() - orderPlacedEvent.getQty());
                     repository().save(menu);
 
                     // 재고가 감소된 메뉴 리스트에 추가
@@ -93,9 +93,9 @@ public class Menu {
     // <<< Clean Arch / Port Method
     public static void increaseMenuPolicy(OrderCancelledEvent orderCancelledEvent) {
         //
-        for (Menu orderMenu : orderCancelledEvent.getMenuId()) {
-            repository().findById(orderMenu.getId()).ifPresent(menu -> {
-                menu.setQty(menu.getQty() + orderMenu.getQty());
+        for (Long orderMenu : orderCancelledEvent.getMenuId()) {
+            repository().findById(orderMenu).ifPresent(menu -> {
+                menu.setQty(menu.getQty() + orderCancelledEvent.getQty());
                 repository().save(menu);
             });
         }
