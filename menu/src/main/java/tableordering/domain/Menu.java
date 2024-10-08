@@ -35,6 +35,8 @@ public class Menu {
 
     private Long categoryId;
 
+    private Long storeId;
+
     @PostPersist
     public void onPostPersist() {
         MenuCreatedEvent menuCreatedEvent = new MenuCreatedEvent(this);
