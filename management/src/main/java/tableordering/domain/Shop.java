@@ -55,8 +55,6 @@ public class Shop {
         repository().save(shop);
     }
 
-    // >>> Clean Arch / Port Method
-    // >>> Clean Arch / Port Method
     // <<< Clean Arch / Port Method
     public static void cancelCookPolicy(OrderCancelledEvent orderCancelledEvent) {
         // implement business logic here:
