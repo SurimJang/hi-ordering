@@ -11,10 +11,9 @@ public class OrderCancelledEvent extends AbstractEvent {
 
     private Long id;
     private Long userId;
-    private List<Menu> menuId;
+    private Object menuId;
     private Integer qty;
     private Date createdAt;
     private Date updatedAt;
     private String orderStatus;
-    private int paymentAmount;
 }

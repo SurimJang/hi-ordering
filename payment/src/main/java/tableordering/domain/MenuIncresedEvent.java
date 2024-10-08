@@ -8,10 +8,7 @@ import tableordering.infra.AbstractEvent;
 @Data
 @ToString
 public class MenuIncresedEvent extends AbstractEvent {
-
-    private Long id;
-    private String menuName;
-    private Integer menuPrice;
-    private Integer qty;
-    private Long categoryId;
+    private Long orderId;
+    private Long userId;
+    private int paymentAmount;
 }

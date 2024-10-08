@@ -10,147 +10,83 @@ import lombok.Data;
 import java.util.Date;
 import java.time.LocalDate;
 
-
 @Entity
-@Table(name="Order_table")
+@Table(name = "Order_table")
 @Data
 
-//<<< DDD / Aggregate Root
-public class Order  {
+// <<< DDD / Aggregate Root
+public class Order {
 
-
-    
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    
-    
-    
-    
+    @GeneratedValue(strategy = GenerationType.AUTO)
+
     private Long id;
-    
-    
-    
-    
+
     private Long userId;
-    
-    
-    
+
     @ElementCollection
     private List<Long> menuId;
-    
-    
-    
-    
+
     private Integer qty;
-    
-    
-    
-    
+
     private Date createdAt;
-    
-    
-    
-    
+
     private Date updatedAt;
-    
-    
-    
-    
+
     private String orderStatus;
 
     @PostPersist
-    public void onPostPersist(){
-
-
-        OrderPlacedEvent orderPlacedEvent = new OrderPlacedEvent(this);
-        orderPlacedEvent.publishAfterCommit();
-
-
-
-        OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(this);
-        orderCancelledEvent.publishAfterCommit();
-
-
-
-        OrderConfirmedEvent orderConfirmedEvent = new OrderConfirmedEvent(this);
-        orderConfirmedEvent.publishAfterCommit();
-
-    
+    public void onPostPersist() {
+        if (this.orderStatus.equals("OrderPlaced")) {
+            OrderPlacedEvent orderPlacedEvent = new OrderPlacedEvent(this);
+            orderPlacedEvent.publishAfterCommit();
+        }
     }
 
-    public static OrderRepository repository(){
+    @PostUpdate
+    public void onPostUpdate() {
+        // 주문 상태에 따라 각각 이벤트 발행
+        switch (this.orderStatus) {
+            case "OrderCancelled":
+                OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(this);
+                orderCancelledEvent.publishAfterCommit();
+                break;
+
+            case "OrderConfirmed":
+                OrderConfirmedEvent orderConfirmedEvent = new OrderConfirmedEvent(this);
+                orderConfirmedEvent.publishAfterCommit();
+                break;
+
+            // 필요한 다른 상태 이벤트 추가 가능
+        }
+    }
+
+    public static OrderRepository repository() {
         OrderRepository orderRepository = OrderApplication.applicationContext.getBean(OrderRepository.class);
         return orderRepository;
     }
 
+    // <<< Clean Arch / Port Method
+    public static void updateStatusPolicy(OutOfStockEvent outOfStockEvent) {
 
-
-    public void order(){
-        tableordering.external.OrderQuery orderQuery = new tableordering.external.OrderQuery();
-        OrderApplication.applicationContext
-            .getBean(tableordering.external.Service.class)
-            .( orderQuery);
-    }
-    
-    public void menuList(MenuListCommand menuListCommand){
-        tableordering.external.MenuListQuery menuListQuery = new tableordering.external.MenuListQuery();
-        OrderApplication.applicationContext
-            .getBean(tableordering.external.MenuService.class)
-            .menuList( menuListQuery);
-    }
-    
-
-//<<< Clean Arch / Port Method
-    public static void updateStatusPolicy(OutOfStockEvent outOfStockEvent){
-        
-        //implement business logic here:
-
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
-
-        */
-
-        /** Example 2:  finding and process
-        
-        repository().findById(outOfStockEvent.get???()).ifPresent(order->{
-            
-            order // do something
+        // 재고 부족으로 인한 주문 취소
+        repository().findById(outOfStockEvent.getOrderId()).ifPresent(order -> {
+            order.setOrderStatus("OrderCancelled");
             repository().save(order);
-
-
-         });
-        */
-
-        
+        });
     }
-//>>> Clean Arch / Port Method
-//<<< Clean Arch / Port Method
-    public static void updateStatusPolicy(PaymentCompleteEvent paymentCompleteEvent){
-        
-        //implement business logic here:
 
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
+    // >>> Clean Arch / Port Method
+    // <<< Clean Arch / Port Method
+    public static void updateStatusPolicy(PaymentCompleteEvent paymentCompleteEvent) {
 
-        */
-
-        /** Example 2:  finding and process
-        
-        repository().findById(paymentCompleteEvent.get???()).ifPresent(order->{
-            
-            order // do something
+        // 결제 완료시 주문 생성 및 완료
+        repository().findById(paymentCompleteEvent.getOrderId()).ifPresent(order -> {
+            order.setOrderStatus("OrderConfirmed");
             repository().save(order);
-
-
-         });
-        */
-
-        
+        });
     }
-//>>> Clean Arch / Port Method
-
+    // >>> Clean Arch / Port Method
 
 }
-//>>> DDD / Aggregate Root
+// >>> DDD / Aggregate Root

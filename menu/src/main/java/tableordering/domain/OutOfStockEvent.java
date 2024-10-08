@@ -16,6 +16,7 @@ public class OutOfStockEvent extends AbstractEvent {
     private Integer menuPrice;
     private Integer qty;
     private Long categoryId;
+    private Long orderId;
 
     public OutOfStockEvent(Menu aggregate) {
         super(aggregate);
@@ -25,4 +26,4 @@ public class OutOfStockEvent extends AbstractEvent {
         super();
     }
 }
-//>>> DDD / Domain Event
+// >>> DDD / Domain Event
