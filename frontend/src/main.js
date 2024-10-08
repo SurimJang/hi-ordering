@@ -1,77 +1,21 @@
- /*eslint-disable*/
-import Vue from "vue";
-import App from "./App.vue";
-import vuetify from "./plugins/vuetify";
-import Managing from "./components";
-import router from './router';
-Vue.config.productionTip = false;
-require('./GlobalStyle.css');
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 
-const axios = require("axios").default;
-
-// backend host url
-axios.backend = null; //"http://localhost:8088";
-
-// axios.backendUrl = new URL(axios.backend);
-axios.fixUrl = function(original){
-
-  if(!axios.backend && original.indexOf("/")==0) return original;
-
-  var url = null;
-
-  try{
-    url = new URL(original);
-  }catch(e){
-    url = new URL(axios.backend + original);
-  }
-
-  if(!axios.backend) return url.pathname;
-
-  url.hostname = axios.backendUrl.hostname;
-  url.port = axios.backendUrl.port;
-
-  return url.href;
-}
-
-const templateFiles = require.context("./components", true);
-Vue.prototype.$ManagerLists = [];
-templateFiles.keys().forEach(function(tempFiles) {
-  if (!tempFiles.includes("Manager.vue") && tempFiles.includes("vue")) {
-    Vue.prototype.$ManagerLists.push(
-      tempFiles.replace("./", "").replace(".vue", "")
-    );
-  }
-});
-Vue.use(Managing);
-const pluralCaseList = []
-
-pluralCaseList.push( {plural: "orders/orders", pascal: "OrderOrder"} )
-
-pluralCaseList.push( {plural: "managements/shops", pascal: "ManagementShop"} )
-
-pluralCaseList.push( {plural: "payments/payments", pascal: "PaymentPayment"} )
-
-pluralCaseList.push( {plural: "users/users", pascal: "UserUser"} )
-
-pluralCaseList.push( {plural: "menus/menus", pascal: "MenuMenu"} )
-
-pluralCaseList.push( {plural: "categories/categories", pascal: "CategoryCategory"} )
+import App from './App.vue'
+import router from './router'
+import './index.css'
+import axios from 'axios';
+import VueApexCharts from 'vue3-apexcharts';
 
 
-Vue.prototype.$ManagerLists.forEach(function(item, idx) {
-  pluralCaseList.forEach(function(tmp) {
-    if(item.toLowerCase() == tmp.pascal.toLowerCase()) {
-      var obj = {
-        name: item,
-        plural: tmp.plural
-      }
-      Vue.prototype.$ManagerLists[idx] = obj
-    }
-  })
-})
+const app = createApp(App)
 
-new Vue({
-  vuetify,
-  router,
-  render: h => h(App)
-}).$mount("#app");
+axios.defaults.withCredentials = true;
+app.use(createPinia());
+app.use(router);
+app.config.globalProperties.axios=axios;
+
+app.use(VueApexCharts);
+app.component('apexchart', VueApexCharts);
+
+app.mount('#app')
