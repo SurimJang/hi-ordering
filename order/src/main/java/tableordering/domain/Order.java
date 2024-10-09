@@ -37,10 +37,8 @@ public class Order {
 
     @PostPersist
     public void onPostPersist() {
-        if (this.orderStatus.equals("OrderPlaced")) {
-            OrderPlacedEvent orderPlacedEvent = new OrderPlacedEvent(this);
-            orderPlacedEvent.publishAfterCommit();
-        }
+        OrderPlacedEvent orderPlacedEvent = new OrderPlacedEvent(this);
+        orderPlacedEvent.publishAfterCommit();
     }
 
     @PostUpdate
