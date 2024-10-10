@@ -131,11 +131,11 @@
                                 <div class="grid grid-cols-4 gap-x-8 gap-y-10 py-16">
                                   <div @click="addToCart(item)" v-for="item in category.featured" :key="item.menu_name" class="group relative">
                                     <div class="aspect-h-1 aspect-w-1 overflow-hidden rounded-md bg-gray-100 group-hover:opacity-75">
-                                      <img src="https://tailwindui.com/img/ecommerce-images/home-page-02-edition-03.jpg" :alt="item.imageAlt" class="object-cover object-center" />
+                                      <img src="https://github.com/user-attachments/assets/6f88629c-8548-45ba-a7e2-74fae3cbf93d" :alt="item.imageAlt" class="object-cover object-center" />
                                     </div>
                                     <a class="mt-4 block font-medium text-gray-900">
                                       <span class="absolute inset-0 z-10" aria-hidden="true" />
-                                      {{ item.menu_name }}
+                                      {{ item.name }}
                                     </a>
                                     <p aria-hidden="true" class="mt-1">{{ formatPrice(item.price) }}₩</p>
                                     <div  class="mt-6 z-10">
@@ -258,7 +258,7 @@ const getMenu = async (categoryId) => {
           name: menu.menuName, // 메뉴 이름
           href: menu._links.self.href, // 메뉴 링크
           price: menu.menuPrice, // 메뉴 가격
-          imageSrc: 'https://github.com/user-attachments/assets/6f88629c-8548-45ba-a7e2-74fae3cbf93d', // 임시 이미지
+          imageSrc: 'https://via.placeholder.com/150', // 임시 이미지
           imageAlt: `${menu.menuName} 이미지` // 이미지 설명
         }));
       }
@@ -279,6 +279,8 @@ onMounted(() => {
           name: category.categoryName, // API의 categoryName 필드 매핑
           featured: [] // 카테고리 내 메뉴(현재는 빈 배열로 설정, 나중에 채워야 함)
         }));
+      }
+    })
     .catch(error => {
       console.error('Error fetching categories:', error);
     });
