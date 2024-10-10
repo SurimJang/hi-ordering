@@ -18,6 +18,7 @@ const route = useRoute()
 const navigation = [
   { name: '메인화면', href: '/', icon: HomeIcon },
   { name: '주문하기', href: '/order', icon: UsersIcon },
+  { name: '주문현황', href: '/history', icon: FolderIcon },
   { name: '통계확인', href: '/sales', icon: ChartPieIcon },
 ]
 

@@ -59,7 +59,7 @@ const router = useRouter();
 
 const login = async () => {
   try {
-    const response = await axios.post(axios.fixUrl("/users/login"), {
+    const response = await axios.post(axios.fixUrl("http://localhost:8088/users/login"), {
     username: username.value,
     password: password.value
   });

@@ -98,7 +98,7 @@ import axios from "axios";
 import OrderModal from "@/components/OrderModal.vue";
 
 const modalOpen = ref(false)
-const HOST = "http://localhost:8080"
+const HOST = "http://localhost:8088"
 const cartStore = useCartStore();
 const products = computed(() => cartStore.cartItems);
 const removeProduct = (product) => {
@@ -115,16 +115,17 @@ const subtotal = computed(() => {
 
 const confirm = () => {
   const orderDetails = products.value.map(product => ({
-    id: product.id,
+    menuId: product.id,
     qty: product.qty
   }));
 
   const payload = {
-    order_items: orderDetails,
-    payment_amount: subtotal.value
+    userId: 1,
+    orderMenus: orderDetails,
+    paymentAmount: subtotal.value
   };
 
-  axios.post(`${HOST}/api/order/confirm`, payload)
+  axios.post(`${HOST}/orders`, payload)
       .then(response => {
         if (response.status === 201) {
           console.log('Order confirmed:', response.data);
