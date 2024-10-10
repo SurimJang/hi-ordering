@@ -17,13 +17,15 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 nvm install 14.19.0 && nvm use 14.19.0
 export NODE_OPTIONS=--openssl-legacy-provider
 
-# << helm >>
+# << helm for kafka & ingress >>
 curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
 chmod 700 get_helm.sh
 ./get_helm.sh
 helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add stable https://charts.helm.sh/stable
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 
 #  << Kafka >>
-cd infra
-docker-compose up
+# cd infra
+# docker-compose up

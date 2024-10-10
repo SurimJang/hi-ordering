@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: username/order:latest
+          image: jangsoowang/order:241010
           ports:
             - containerPort: 8080
           # readinessProbe:
@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
         - name: management
-          image: username/management:latest
+          image: jangsoowang/management:241010
           ports:
             - containerPort: 8080
           # readinessProbe:
@@ -98,7 +98,7 @@ spec:
     spec:
       containers:
         - name: payment
-          image: username/payment:latest
+          image: jangsoowang/payment:241010
           ports:
             - containerPort: 8080
           # readinessProbe:
@@ -138,7 +138,7 @@ spec:
     spec:
       containers:
         - name: user
-          image: username/user:latest
+          image: jangsoowang/user:241010
           ports:
             - containerPort: 8080
           # readinessProbe:
@@ -178,7 +178,7 @@ spec:
     spec:
       containers:
         - name: menu
-          image: username/menu:latest
+          image: jangsoowang/menu:241010
           ports:
             - containerPort: 8080
           # readinessProbe:
@@ -218,7 +218,48 @@ spec:
     spec:
       containers:
         - name: category
-          image: username/category:latest
+          image: jangsoowang/category:241010
+          ports:
+            - containerPort: 8080
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 10
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 10
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/actuator/health'
+          #     port: 8080
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 2
+          #   periodSeconds: 5
+          #   failureThreshold: 5
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: jangsoowang/frontend:241010
           ports:
             - containerPort: 8080
           # readinessProbe:
@@ -339,4 +380,18 @@ spec:
       targetPort: 8080
   selector:
     app: category
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: frontend
 
