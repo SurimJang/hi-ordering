@@ -29,16 +29,16 @@
                         <ul role="list" class="-my-6 divide-y divide-gray-200">
                           <li v-for="product in products" :key="product.id" class="flex py-6">
                             <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                              <img src="https://tailwindui.com/img/ecommerce-images/home-page-02-edition-03.jpg" :alt="product.imageAlt" class="h-full w-full object-cover object-center" />
+                              <img src="https://github.com/user-attachments/assets/6f88629c-8548-45ba-a7e2-74fae3cbf93d" :alt="product.imageAlt" class="h-full w-full object-cover object-center" />
                             </div>
-
+                          
                             <div class="ml-4 flex flex-1 flex-col">
                               <div>
                                 <div class="flex justify-between text-base font-medium text-gray-900">
                                   <h3>
-                                    <a :href="product.href">{{ product.menu_name }}</a>
+                                    <a :href="product.href">{{ product.name }}</a>
                                   </h3>
-                                  <p class="ml-4">{{ product.price }}원</p>
+                                  <p class="ml-4">{{ formatPrice(product.price) }} 원</p>
                                 </div>
                                 <p class="mt-1 text-sm text-gray-500">{{ product.color }}</p>
                               </div>
@@ -62,7 +62,7 @@
                   <div class="border-t border-gray-200 px-4 py-6 sm:px-6">
                     <div class="flex justify-between text-base font-medium text-gray-900">
                       <p>총액</p>
-                      <p>{{ subtotal }}원</p>
+                      <p>{{ formatPrice(subtotal) }} 원</p>
                     </div>
                     <p class="mt-0.5 text-sm text-gray-500">다시 한 번 주문하신 메뉴를 확인해주세요.</p>
                     <div class="mt-6">
@@ -72,7 +72,7 @@
                       <p>
                         or{{ ' ' }}
                         <button type="button" class="font-medium text-indigo-600 hover:text-indigo-500" @click="cartStore.closeCart">
-                          메뉴 선택 화면으로
+                          돌아가기
                           <span aria-hidden="true"> &rarr;</span>
                         </button>
                       </p>
@@ -98,7 +98,7 @@ import axios from "axios";
 import OrderModal from "@/components/OrderModal.vue";
 
 const modalOpen = ref(false)
-const HOST = "http://localhost:8080"
+const HOST = "http://localhost:8088"
 const cartStore = useCartStore();
 const products = computed(() => cartStore.cartItems);
 const removeProduct = (product) => {
@@ -107,37 +107,72 @@ const removeProduct = (product) => {
 
 // 총액 계산하는 computed 속성
 const subtotal = computed(() => {
+  console.log(products.value);
   return products.value.reduce((total, product) => {
     return total + (product.price * product.qty);
   }, 0);
 });
 
-
 const confirm = () => {
   const orderDetails = products.value.map(product => ({
-    id: product.id,
-    qty: product.qty
+    menuId: product.id,  // 메뉴 ID
+    qty: product.qty     // 수량
   }));
 
   const payload = {
-    order_items: orderDetails,
-    payment_amount: subtotal.value
+    userId: 1,  // 유저 ID, 필요시 동적으로 변경 가능
+    paymentAmount: subtotal.value,  // 총 결제 금액
+    orderMenus: orderDetails,  // 주문한 메뉴 목록
+    orderStatus: "placed"  // 주문 상태
   };
 
-  axios.post(`${HOST}/api/order/confirm`, payload)
-      .then(response => {
-        if (response.status === 201) {
-          console.log('Order confirmed:', response.data);
-          // 주문이 성공적으로 완료된 후 장바구니를 비우거나 사용자가 알림을 받도록 추가 작업을 수행할 수 있습니다.
-          cartStore.resetCart();
-          modalOpen.value = true;
-        }
-      })
-      .catch(error => {
-        console.error('Order confirmation error:', error);
-        // 오류 처리 로직을 추가할 수 있습니다. 예를 들어, 사용자에게 오류 메시지를 표시하는 것 등.
-      });
+  // axios로 서버에 주문 생성 요청
+  axios.post(axios.fixUrl('/orders'), payload)
+    .then(response => {
+      if (response.status === 201) {
+        console.log('Order confirmed:', response.data);
+        // 주문이 완료되면 장바구니를 리셋하고 모달을 염
+        cartStore.resetCart();
+        modalOpen.value = true;
+      }
+    })
+    .catch(error => {
+      console.error('Order confirmation error:', error);
+      // 오류 처리 로직을 추가적으로 작성할 수 있음
+    });
 };
 
+// const confirm = () => {
+//   const orderDetails = products.value.map(product => (
+//     {
+//     menuId: product.id,
+//     qty: product.qty
+//   }
+// ));
+
+//   const payload = {
+//     order_items: orderDetails,
+//     payment_amount: subtotal.value
+//   };
+
+//   axios.post(`${HOST}/api/order/confirm`, payload)
+//       .then(response => {
+//         if (response.status === 201) {
+//           console.log('Order confirmed:', response.data);
+//           // 주문이 성공적으로 완료된 후 장바구니를 비우거나 사용자가 알림을 받도록 추가 작업을 수행할 수 있습니다.
+//           cartStore.resetCart();
+//           modalOpen.value = true;
+//         }
+//       })
+//       .catch(error => {
+//         console.error('Order confirmation error:', error);
+//         // 오류 처리 로직을 추가할 수 있습니다. 예를 들어, 사용자에게 오류 메시지를 표시하는 것 등.
+//       });
+// };
+
+// 숫자를 "8,000"과 같이 포맷하는 함수
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('ko-KR').format(price);
+};
 
 </script>

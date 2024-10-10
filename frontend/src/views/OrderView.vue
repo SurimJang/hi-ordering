@@ -248,13 +248,17 @@ const addToCart = (item) => {
 // 메뉴 데이터를 가져와서 featured를 채우는 함수
 const getMenu = async (categoryId) => {
   try {
-    const response = await axios.get(axios.fixUrl(`/menus?categoryId=${categoryId}`));
+    // const response = await axios.get(axios.fixUrl(`/menus?categoryId=${categoryId}`));
+    const response = await axios.get(axios.fixUrl(`/menus`));
     if (response.status === 200) {
       // 해당 카테고리의 메뉴 데이터를 navigation에서 찾아 featured에 채움
-      const category = navigation.value.categories.find(cat => cat.id === categoryId);
+      const category = navigation.value.categories.find(cat => cat.id == categoryId);
       if (category) {
-        category.featured = response.data._embedded.menus.map((menu, index) => ({
+        category.featured = response.data._embedded.menus
+        .filter(menu => menu.categoryId == categoryId)
+        .map((menu, index) => ({
           id: index + 1, // 임시로 인덱스를 ID로 사용
+          // id: menu.categoryId,
           name: menu.menuName, // 메뉴 이름
           href: menu._links.self.href, // 메뉴 링크
           price: menu.menuPrice, // 메뉴 가격

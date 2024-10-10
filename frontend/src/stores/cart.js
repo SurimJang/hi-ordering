@@ -9,7 +9,7 @@ export const useCartStore = defineStore('cart', {
     actions: {
         toggleCart() {
             this.open = !this.open
-            console.log(this.open);
+            // console.log(this.open);
         },
         openCart() {
             this.open = true
@@ -36,7 +36,7 @@ export const useCartStore = defineStore('cart', {
             this.cartCount = this.cartItems.length;
         },
         removeFromCart(item) {
-            console.log(this.cartItems);
+            // console.log(this.cartItems);
             this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
             this.cartCount = this.cartItems.length;
         },
