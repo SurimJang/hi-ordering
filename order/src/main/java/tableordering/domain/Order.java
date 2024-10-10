@@ -7,11 +7,13 @@ import tableordering.OrderApplication;
 import javax.persistence.*;
 import java.util.List;
 import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Order_table")
+@Table(name = "\"order\"", schema = "\"order\"")
 @Data
 
 // <<< DDD / Aggregate Root
@@ -25,15 +27,33 @@ public class Order {
     private Long userId;
 
     @ElementCollection
-    private List<Long> menuId;
+    @CollectionTable(name = "order_menus", // 테이블 이름
+            schema = "\"order\"", // 스키마 이름
+            joinColumns = @JoinColumn(name = "order_id") // 조인 컬럼 지정
+    )
+    @Column(name = "menu_id")
+    private List<OrderMenu> orderMenus = new ArrayList<>();
 
-    private Integer qty;
-
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
     private String orderStatus;
+
+    private Integer paymentAmount;
+
+    @PrePersist
+    public void onCreate() {
+        createdAt = new Date();
+        updatedAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
 
     @PostPersist
     public void onPostPersist() {
