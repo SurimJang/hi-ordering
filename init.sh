@@ -24,6 +24,8 @@ chmod 700 get_helm.sh
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add stable https://charts.helm.sh/stable
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+# Prometheus 저장소 추가
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 
 #  << Kafka >>
