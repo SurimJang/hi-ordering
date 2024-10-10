@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: "Ingress"
+metadata:
+  name: "hiorder-ingress"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ""
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 8080
+          - path: /orders
+            pathType: Prefix
+            backend:
+              service:
+                name: order
+                port:
+                  number: 8080
+          - path: /menus
+            pathType: Prefix
+            backend:
+              service:
+                name: menu
+                port:
+                  number: 8080
+          - path: /categories
+            pathType: Prefix
+            backend:
+              service:
+                name: category
+                port:
+                  number: 8080
+          - path: /managements
+            pathType: Prefix
+            backend:
+              service:
+                name: management
+                port:
+                  number: 8080
+          - path: /payments
+            pathType: Prefix
+            backend:
+              service:
+                name: payment
+                port:
+                  number: 8080
+          - path: /users
+            pathType: Prefix
+            backend:
+              service:
+                name: user
+                port:
+                  number: 8080
