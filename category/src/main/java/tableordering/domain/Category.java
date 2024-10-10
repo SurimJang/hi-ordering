@@ -10,9 +10,9 @@ import tableordering.domain.CategoryCreatedEvent;
 import tableordering.domain.CategoryDeletedEvent;
 
 @Entity
-@Table(name = "Category_table")
+@Table(name = "category", schema = "category")
 @Data
-//<<< DDD / Aggregate Root
+// <<< DDD / Aggregate Root
 public class Category {
 
     @Id
@@ -26,21 +26,18 @@ public class Category {
     @PostPersist
     public void onPostPersist() {
         CategoryCreatedEvent categoryCreatedEvent = new CategoryCreatedEvent(
-            this
-        );
+                this);
         categoryCreatedEvent.publishAfterCommit();
 
         CategoryDeletedEvent categoryDeletedEvent = new CategoryDeletedEvent(
-            this
-        );
+                this);
         categoryDeletedEvent.publishAfterCommit();
     }
 
     public static CategoryRepository repository() {
         CategoryRepository categoryRepository = CategoryApplication.applicationContext.getBean(
-            CategoryRepository.class
-        );
+                CategoryRepository.class);
         return categoryRepository;
     }
 }
-//>>> DDD / Aggregate Root
+// >>> DDD / Aggregate Root

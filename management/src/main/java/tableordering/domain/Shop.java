@@ -9,7 +9,7 @@ import tableordering.ManagementApplication;
 import tableordering.domain.CookStartedEvent;
 
 @Entity
-@Table(name = "Shop_table")
+@Table(name = "sales")
 @Data
 // <<< DDD / Aggregate Root
 public class Shop {

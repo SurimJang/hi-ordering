@@ -18,6 +18,7 @@ public class OrderPlacedEvent extends AbstractEvent {
     private Date createdAt;
     private Date updatedAt;
     private String orderStatus;
+    private Integer paymentAmount;
 
     public OrderPlacedEvent(Order aggregate) {
         super(aggregate);
