@@ -1,5 +1,4 @@
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,7 +17,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: jangsoowang/order:241010
+          image: jangsoowang/order:v1
           ports:
             - containerPort: 8080
           # readinessProbe:
@@ -39,7 +38,6 @@ spec:
           #   failureThreshold: 5
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -58,7 +56,7 @@ spec:
     spec:
       containers:
         - name: management
-          image: jangsoowang/management:241010
+          image: jangsoowang/management:v1
           ports:
             - containerPort: 8080
           # readinessProbe:
@@ -79,7 +77,6 @@ spec:
           #   failureThreshold: 5
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -98,12 +95,11 @@ spec:
     spec:
       containers:
         - name: payment
-          image: jangsoowang/payment:241010
+          image: jangsoowang/payment:v1
           ports:
             - containerPort: 8080
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -122,12 +118,11 @@ spec:
     spec:
       containers:
         - name: user
-          image: jangsoowang/user:241010
+          image: jangsoowang/user:v1
           ports:
             - containerPort: 8080
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -146,12 +141,11 @@ spec:
     spec:
       containers:
         - name: menu
-          image: jangsoowang/menu:241010
+          image: jangsoowang/menu:v1
           ports:
             - containerPort: 8080
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -170,13 +164,11 @@ spec:
     spec:
       containers:
         - name: category
-          image: jangsoowang/category:241010
+          image: jangsoowang/category:v1
           ports:
             - containerPort: 8080
 
-
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -199,10 +191,7 @@ spec:
           ports:
             - containerPort: 8080
 
-
 ---
-
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -220,50 +209,55 @@ spec:
         app: postgres
     spec:
       containers:
-      - name: postgres
-        image: postgres:13
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_DB
-          value: "postgres"
-        - name: POSTGRES_USER
-          value: "postgres"
-        - name: POSTGRES_PASSWORD
-          value: "admin"
-        volumeMounts:
-        - mountPath: /var/lib/postgresql/data                   # 영구 저장소 경로
-          name: postgres-storage
-        - mountPath: /docker-entrypoint-initdb.d/           # init.sql 경로
-          name: init-sql-config
+        - name: postgres
+          image: postgres:13
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: 'postgres'
+            - name: POSTGRES_USER
+              value: 'postgres'
+            - name: POSTGRES_PASSWORD
+              value: 'admin'
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data # 영구 저장소 경로
+              name: postgres-storage
+            - mountPath: /docker-entrypoint-initdb.d/ # init.sql 경로
+              name: init-sql-config
       volumes:
-      - name: postgres-storage
-        persistentVolumeClaim:
-          claimName: azurefile
-      - name: init-sql-config
-        configMap:
-          name: init-sql-config
-
+        - name: postgres-storage
+          emptyDir: {}
+        - name: init-sql-config
+          configMap:
+            name: init-sql-config
 
 ---
-
-
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: azurefile
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   storageClassName: azurefile
   resources:
     requests:
       storage: 1Gi
-
-
 ---
-
-
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -277,10 +271,7 @@ spec:
   selector:
     app: order
 
-
 ---
-
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -294,10 +285,7 @@ spec:
   selector:
     app: management
 
-
 ---
-
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -311,10 +299,7 @@ spec:
   selector:
     app: payment
 
-
 ---
-
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -328,10 +313,7 @@ spec:
   selector:
     app: user
 
-
 ---
-
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -345,10 +327,7 @@ spec:
   selector:
     app: menu
 
-
 ---
-
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -375,4 +354,3 @@ spec:
       targetPort: 8080
   selector:
     app: frontend
-
