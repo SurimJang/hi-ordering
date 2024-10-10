@@ -101,22 +101,6 @@ spec:
           image: jangsoowang/payment:241010
           ports:
             - containerPort: 8080
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 10
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 10
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 5
 
 ---
 
@@ -141,22 +125,6 @@ spec:
           image: jangsoowang/user:241010
           ports:
             - containerPort: 8080
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 10
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 10
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 5
 
 ---
 
@@ -181,22 +149,6 @@ spec:
           image: jangsoowang/menu:241010
           ports:
             - containerPort: 8080
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 10
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 10
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 5
 
 ---
 
@@ -221,22 +173,6 @@ spec:
           image: jangsoowang/category:241010
           ports:
             - containerPort: 8080
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 10
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 10
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 5
 
 
 ---
@@ -262,22 +198,67 @@ spec:
           image: jangsoowang/frontend:241010
           ports:
             - containerPort: 8080
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 10
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 10
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/actuator/health'
-          #     port: 8080
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 2
-          #   periodSeconds: 5
-          #   failureThreshold: 5
+
+
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "postgres"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "admin"
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data                   # 영구 저장소 경로
+          name: postgres-storage
+        - mountPath: /docker-entrypoint-initdb.d/           # init.sql 경로
+          name: init-sql-config
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+      - name: init-sql-config
+        configMap:
+          name: init-sql-config
+
+
+---
+
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azurefile
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: azurefile
+  resources:
+    requests:
+      storage: 1Gi
 
 
 ---
