@@ -49,7 +49,7 @@ KT의 테이블오더 서비스 '하이오더'를 클라우드 네이티브 환�
 - **비기능적 요구사항**
     - 트랜잭션
         - 결제가 완료되지 않은 주문은 전달되면 안된다.(Sync)
-        - 재고가 존재하지 않는 메뉴는 전달되면 안된다.(Sync)
+        - 재고가 존재하지 않는 메뉴는 결제되거나 재고가 감소하면 안된다.(보상 트랜잭션)
     - 장애격리
         - 가게관리 서비스 장애 시에도 주문 서비스는 가능해야한다. (Async, Event Driven)
         - 주문 서비스 과중되면 사용자를 잠시동안 받지 않고 주문을 잠시 후에 하도록 유도 (Circuit breaker, fallback)
@@ -79,11 +79,373 @@ KT의 테이블오더 서비스 '하이오더'를 클라우드 네이티브 환�
 
 
 ## II. 구현
+* DDD의 적용  
 
-```bash
-echo 할 수 있다!
+1. Order
+```java
+@Entity
+@Table(name = "\"order\"", schema = "\"order\"")
+@Data
+
+// <<< DDD / Aggregate Root
+public class Order {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+
+    private Long id;
+
+    private Long userId;
+
+    @ElementCollection
+    @CollectionTable(name = "order_menus", // 테이블 이름
+            schema = "\"order\"", // 스키마 이름
+            joinColumns = @JoinColumn(name = "order_id") // 조인 컬럼 지정
+    )
+    @Column(name = "menu_id")
+    private List<OrderMenu> orderMenus = new ArrayList<>();
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+
+    private String orderStatus;
+
+    private Integer paymentAmount;
+
+    @PrePersist
+    public void onCreate() {
+        createdAt = new Date();
+        updatedAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
+
+    @PostPersist
+    public void onPostPersist() {
+        OrderPlacedEvent orderPlacedEvent = new OrderPlacedEvent(this);
+        orderPlacedEvent.publishAfterCommit();
+    }
+
+    @PostUpdate
+    public void onPostUpdate() {
+        // 주문 상태에 따라 각각 이벤트 발행
+        switch (this.orderStatus) {
+            case "OrderCancelled":
+                OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(this);
+                orderCancelledEvent.publishAfterCommit();
+                break;
+
+            case "OrderConfirmed":
+                OrderConfirmedEvent orderConfirmedEvent = new OrderConfirmedEvent(this);
+                orderConfirmedEvent.publishAfterCommit();
+                break;
+
+            // 필요한 다른 상태 이벤트 추가 가능
+        }
+    }
+
+    public static OrderRepository repository() {
+        OrderRepository orderRepository = OrderApplication.applicationContext.getBean(OrderRepository.class);
+        return orderRepository;
+    }
+
+    // <<< Clean Arch / Port Method
+    public static void updateStatusPolicy(OutOfStockEvent outOfStockEvent) {
+
+        // 재고 부족으로 인한 주문 취소
+        repository().findById(outOfStockEvent.getOrderId()).ifPresent(order -> {
+            order.setOrderStatus("OrderCancelled");
+            repository().save(order);
+        });
+    }
+
+    // >>> Clean Arch / Port Method
+    // <<< Clean Arch / Port Method
+    public static void updateStatusPolicy(PaymentCompleteEvent paymentCompleteEvent) {
+
+        // 결제 완료시 주문 생성 및 완료
+        repository().findById(paymentCompleteEvent.getOrderId()).ifPresent(order -> {
+            order.setOrderStatus("OrderConfirmed");
+            repository().save(order);
+        });
+    }
+    // >>> Clean Arch / Port Method
+
+}
+// >>> DDD / Aggregate Root
+
 ```
+2. Menu
+```java
+@Entity
+@Table(name = "menu", schema = "menu")
+@Data
 
+// <<< DDD / Aggregate Root
+public class Menu {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+
+    private Long id;
+
+    private String menuName;
+
+    private Integer menuPrice;
+
+    private Integer qty;
+
+    private Long categoryId;
+
+    private Long storeId;
+
+    @PostPersist
+    public void onPostPersist() {
+        MenuCreatedEvent menuCreatedEvent = new MenuCreatedEvent(this);
+        menuCreatedEvent.publishAfterCommit();
+    }
+
+    @PostRemove
+    public void onPostRemove() {
+        MenuDeletedEvent menuDeletedEvent = new MenuDeletedEvent(this);
+        menuDeletedEvent.publishAfterCommit();
+    }
+
+    public static MenuRepository repository() {
+        MenuRepository menuRepository = MenuApplication.applicationContext.getBean(MenuRepository.class);
+        return menuRepository;
+    }
+
+    // <<< Clean Arch / Port Method
+    public static void decreaseMenuPolicy(OrderPlacedEvent orderPlacedEvent) {
+        List<Menu> decreasedMenus = new ArrayList<>(); // 재고가 감소된 메뉴 리스트
+
+        // 메뉴 재고 검사
+        for (OrderMenu orderMenu : orderPlacedEvent.getOrderMenus()) {
+            repository().findById(orderMenu.getMenuId()).ifPresent(menu -> {
+                if (menu.getQty() >= orderMenu.getQty()) {
+                    // 재고가 감소된 메뉴 리스트에 추가
+                    decreasedMenus.add(menu);
+                }
+                // 재고 감소
+                menu.setQty(menu.getQty() - orderMenu.getQty());
+                repository().save(menu);
+            });
+        }
+
+        // 주문한 메뉴 중에 재고가 없어서 감소하지 못했다면
+        if (decreasedMenus.size() != orderPlacedEvent.getOrderMenus().size()) {
+            // OutOfStockEvent 발행
+            OutOfStockEvent outOfStockEvent = new OutOfStockEvent();
+            outOfStockEvent.setOrderId(orderPlacedEvent.getId());
+            outOfStockEvent.publishAfterCommit();
+        }
+        // 재고가 전부 감소했으면 MenuDecreasedEvent 한 번만 발행
+        else if (decreasedMenus.size() == orderPlacedEvent.getOrderMenus().size()) {
+            MenuDecreasedEvent menuDecreasedEvent = new MenuDecreasedEvent();
+            menuDecreasedEvent.setOrderId(orderPlacedEvent.getId());
+            menuDecreasedEvent.setUserId(orderPlacedEvent.getUserId());
+            menuDecreasedEvent.setPaymentAmount(orderPlacedEvent.getPaymentAmount());
+            menuDecreasedEvent.publishAfterCommit();
+        }
+    }
+
+    // >>> Clean Arch / Port Method
+    // <<< Clean Arch / Port Method
+    public static void increaseMenuPolicy(OrderCancelledEvent orderCancelledEvent) {
+        //
+        for (OrderMenu orderMenu : orderCancelledEvent.getOrderMenus()) {
+            repository().findById(orderMenu.getMenuId()).ifPresent(menu -> {
+                menu.setQty(menu.getQty() + orderMenu.getQty());
+                repository().save(menu);
+            });
+        }
+        MenuIncresedEvent menuIncresedEvent = new MenuIncresedEvent();
+        menuIncresedEvent.setOrderId(orderCancelledEvent.getId());
+        menuIncresedEvent.setUserId(orderCancelledEvent.getUserId());
+        menuIncresedEvent.setPaymentAmount(orderCancelledEvent.getPaymentAmount());
+        menuIncresedEvent.publishAfterCommit();
+    }
+    // >>> Clean Arch / Port Method
+
+}
+```
+3. OrderMenu
+```java
+
+@Embeddable
+@Data
+public class OrderMenu {
+
+    @Column(name = "menu_id", nullable = false)
+    private Long menuId;
+
+    @Column(name = "qty", nullable = false)
+    private Integer qty;
+
+    public OrderMenu() {
+    }
+
+    public OrderMenu(Long menuId, Integer qty) {
+        this.menuId = menuId;
+        this.qty = qty;
+    }
+
+    // Getters and Setters
+    // 생략
+}
+```
+4. User
+```java
+@Entity
+@Table(name = "user", schema = "user")
+@Data
+// <<< DDD / Aggregate Root
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private String username;
+
+    private String password;
+
+    private Date createdAt;
+
+    private Date updatedAt;
+
+    @PostPersist
+    public void onPostPersist() {
+    }
+
+    public static UserRepository repository() {
+        UserRepository userRepository = UserApplication.applicationContext.getBean(
+                UserRepository.class);
+        return userRepository;
+    }
+}
+```
+5. Category
+```java
+
+@Entity
+@Table(name = "category", schema = "category")
+@Data
+// <<< DDD / Aggregate Root
+public class Category {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private String categoryName;
+
+    private Long storeId;
+
+    @PostPersist
+    public void onPostPersist() {
+        CategoryCreatedEvent categoryCreatedEvent = new CategoryCreatedEvent(
+                this);
+        categoryCreatedEvent.publishAfterCommit();
+
+        CategoryDeletedEvent categoryDeletedEvent = new CategoryDeletedEvent(
+                this);
+        categoryDeletedEvent.publishAfterCommit();
+    }
+
+    public static CategoryRepository repository() {
+        CategoryRepository categoryRepository = CategoryApplication.applicationContext.getBean(
+                CategoryRepository.class);
+        return categoryRepository;
+    }
+}
+// >>> DDD / Aggregate Root
+
+```
+6. Payment
+```java
+
+@Entity
+@Table(name = "payment", schema = "payment")
+@Data
+// <<< DDD / Aggregate Root
+public class Payment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private Integer paymentAmount;
+
+    private Long userId;
+
+    private Long orderId;
+
+    private String paymentStatus;
+
+    @PostPersist
+    public void onPostPersist() {
+        PaymentCompleteEvent paymentCompleteEvent = new PaymentCompleteEvent(
+                this);
+        paymentCompleteEvent.publishAfterCommit();
+
+    }
+
+    @PostUpdate
+    public void onPostUpdate() {
+        switch (this.paymentStatus) {
+            case "Cancelled":
+                PaymentCancelledEvent paymentCancelledEvent = new PaymentCancelledEvent(
+                        this);
+                paymentCancelledEvent.publishAfterCommit();
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
+    public static PaymentRepository repository() {
+        PaymentRepository paymentRepository = PaymentApplication.applicationContext.getBean(
+                PaymentRepository.class);
+        return paymentRepository;
+    }
+
+    // <<< Clean Arch / Port Method
+    public static void paymentRequestPolicy(MenuDecreasedEvent menuDecreasedEvent) {
+        // implement business logic here:
+        Payment payment = new Payment();
+        payment.setOrderId(menuDecreasedEvent.getOrderId());
+        payment.setUserId(menuDecreasedEvent.getUserId());
+        payment.setPaymentAmount(menuDecreasedEvent.getPaymentAmount());
+        payment.setPaymentStatus("Completed");
+        repository().save(payment);
+    }
+
+    // >>> Clean Arch / Port Method
+    // <<< Clean Arch / Port Method
+    public static void paymentCancelPolicy(MenuIncresedEvent menuIncresedEvent) {
+        // implement business logic here:
+        repository().findByOrderId(menuIncresedEvent.getOrderId()).ifPresent(payment -> {
+            payment.setPaymentStatus("Cancelled");
+            repository().save(payment);
+        });
+
+    }
+    // >>> Clean Arch / Port Method
+
+}
+// >>> DDD / Aggregate Root
+
+```
 ## III. 운영
 
 ```yaml
