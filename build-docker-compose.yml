@@ -1,3 +1,5 @@
+# 사용하지 않음
+
 version: '2'
 services:
   zookeeper:
@@ -107,3 +109,15 @@ services:
       - ./category:/usr/src
       - ./maven-repo:/root/.m2
       
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: postgres               # 기본 데이터베이스 이름
+      POSTGRES_USER: postgres           # 사용자 이름
+      POSTGRES_PASSWORD: admin    # 사용자 비밀번호
+    volumes:
+      # - ./infra/postgres/azurefile:/var/lib/postgresql/data    
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
