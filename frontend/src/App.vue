@@ -4,13 +4,13 @@ import { onMounted, ref } from 'vue'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {
   Bars3Icon,
-  CalendarIcon,
   ChartPieIcon,
   ArrowLeftStartOnRectangleIcon,
-  FolderIcon,
   HomeIcon,
   UsersIcon,
   XMarkIcon,
+  ChartBarSquareIcon,
+  Cog6ToothIcon,
 } from '@heroicons/vue/24/outline'
 
 const route = useRoute()
@@ -18,7 +18,9 @@ const route = useRoute()
 const navigation = [
   { name: '메인화면', href: '/', icon: HomeIcon },
   { name: '주문하기', href: '/order', icon: UsersIcon },
-  { name: '통계확인', href: '/sales', icon: ChartPieIcon },
+  { name: '주문현황', href: '/tmp', icon: ChartBarSquareIcon },
+  { name: '매출현황', href: '/sales', icon: ChartPieIcon },
+  { name: '설정', href: '/tmp', icon: Cog6ToothIcon },
 ]
 
 const sidebarOpen = ref(false)

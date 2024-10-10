@@ -107,10 +107,10 @@
               <div class="flex h-16 items-center justify-between">
                 <!-- Logo (lg+) -->
                 <div class="hidden lg:flex lg:flex-1 lg:items-center">
-                  <a href="#">
+                  <!-- <a href="#">
                     <span class="sr-only">Your Company</span>
                     <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="" />
-                  </a>
+                  </a> -->
                 </div>
 
                 <div class="hidden h-full lg:flex">
@@ -121,7 +121,6 @@
                         <div class="relative flex">
                           <PopoverButton @click="getMenu(category.id)" :class="[open ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-700 hover:text-gray-800', 'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out']">{{ category.name }}</PopoverButton>
                         </div>
-
                         <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
                           <PopoverPanel class="absolute inset-x-0 top-full text-sm text-gray-500">
                             <!-- Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow -->
@@ -132,13 +131,13 @@
                                 <div class="grid grid-cols-4 gap-x-8 gap-y-10 py-16">
                                   <div @click="addToCart(item)" v-for="item in category.featured" :key="item.menu_name" class="group relative">
                                     <div class="aspect-h-1 aspect-w-1 overflow-hidden rounded-md bg-gray-100 group-hover:opacity-75">
-                                      <img src="https://tailwindui.com/img/ecommerce-images/home-page-02-edition-03.jpg" :alt="item.imageAlt" class="object-cover object-center" />
+                                      <img src="https://github.com/user-attachments/assets/6f88629c-8548-45ba-a7e2-74fae3cbf93d" :alt="item.imageAlt" class="object-cover object-center" />
                                     </div>
                                     <a class="mt-4 block font-medium text-gray-900">
                                       <span class="absolute inset-0 z-10" aria-hidden="true" />
-                                      {{ item.menu_name }}
+                                      {{ item.name }}
                                     </a>
-                                    <p aria-hidden="true" class="mt-1">\{{ item.price }}</p>
+                                    <p aria-hidden="true" class="mt-1">{{ formatPrice(item.price) }}₩</p>
                                     <div  class="mt-6 z-10">
                                       <div class="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
                                       >주문에 추가<span class="sr-only">, {{ item.menu_name }}</span></div>
@@ -167,10 +166,10 @@
                 </div>
 
                 <!-- Logo (lg-) -->
-                <a href="#" class="lg:hidden">
+                <!-- <a href="#" class="lg:hidden">
                   <span class="sr-only">Your Company</span>
                   <img src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="" class="h-8 w-auto" />
-                </a>
+                </a> -->
 
                 <div class="flex flex-1 items-center justify-end">
 
@@ -221,7 +220,6 @@ import {
 } from '@headlessui/vue'
 import {
   Bars3Icon,
-  MagnifyingGlassIcon,
   QuestionMarkCircleIcon,
   ShoppingBagIcon,
   XMarkIcon,
@@ -231,89 +229,13 @@ import {useCartStore} from "@/stores/cart.js";
 import OrderCart from "@/components/OrderCart.vue";
 import axios from "axios";
 
-const navigation = ref({
-  categories: [
-    {
-      id:1,
-      name: '세트메뉴',
-      featured: [
-        {
-          id: 1,
-          name: 'New Arrivals',
-          href: '#',
-          price: 11000,
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg',
-          imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-        },
-        {
-          id: 2,
-          name: 'Basic Tees',
-          href: '#',
-          price: 110,
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-02.jpg',
-          imageAlt: 'Close up of Basic Tee fall bundle with off-white, ochre, olive, and black tees.',
-        },
-        {
-          id: 3,
-          name: 'Accessories',
-          href: '#',
-          price: 110,
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-03.jpg',
-          imageAlt: 'Model wearing minimalist watch with black wristband and white watch face.',
-        },
-        {
-          id: 4,
-          name: 'Carry',
-          href: '#',
-          price: 110,
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-04.jpg',
-          imageAlt: 'Model opening tan leather long wallet with credit card pockets and cash pouch.',
-        },
-      ],
-    },
-    {
-      id:2,
-      name: '사이드',
-      featured: [
-        {
-          id: 5,
-          name: 'New Arrivals',
-          href: '#',
-          price: 110,
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-01-men-category-01.jpg',
-          imageAlt: 'Hats and sweaters on wood shelves next to various colors of t-shirts on hangers.',
-        },
-        {
-          id: 6,
-          name: 'Basic Tees',
-          href: '#',
-          price: 110,
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-01-men-category-02.jpg',
-          imageAlt: 'Model wearing light heather gray t-shirt.',
-        },
-        {
-          id: 7,
-          name: 'Accessories',
-          href: '#',
-          price: 110,
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-01-men-category-03.jpg',
-          imageAlt:
-              'Grey 6-panel baseball hat with black brim, black mountain graphic on front, and light heather gray body.',
-        },
-        {
-          id: 8,
-          name: 'Carry',
-          href: '#',
-          price: 110,
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-01-men-category-04.jpg',
-          imageAlt: 'Model putting folded cash into slim card holder olive leather wallet with hand stitching.',
-        },
-      ],
-    },
-  ]
-});
+// 숫자를 "8,000"과 같이 포맷하는 함수
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('ko-KR').format(price);
+};
 
-const HOST = "http://localhost:8080";
+const navigation = ref({ categories: [] })
+
 const cartStore = useCartStore()
 
 const toggleCart = () => {
@@ -323,31 +245,49 @@ const addToCart = (item) => {
   cartStore.addToCart(item);
 };
 
-const getMenu = async (category_id) => {
+// 메뉴 데이터를 가져와서 featured를 채우는 함수
+const getMenu = async (categoryId) => {
   try {
-    const response = await axios.get(`${HOST}/api/order/menu/`+category_id);
-
+    // const response = await axios.get(axios.fixUrl(`/menus?categoryId=${categoryId}`));
+    const response = await axios.get(axios.fixUrl(`/menus`));
     if (response.status === 200) {
-      const category = navigation.value.categories.find(category => category.id === category_id);
-      category.featured = response.data;
+      // 해당 카테고리의 메뉴 데이터를 navigation에서 찾아 featured에 채움
+      const category = navigation.value.categories.find(cat => cat.id == categoryId);
+      if (category) {
+        category.featured = response.data._embedded.menus
+        .filter(menu => menu.categoryId == categoryId)
+        .map((menu, index) => ({
+          id: index + 1, // 임시로 인덱스를 ID로 사용
+          // id: menu.categoryId,
+          name: menu.menuName, // 메뉴 이름
+          href: menu._links.self.href, // 메뉴 링크
+          price: menu.menuPrice, // 메뉴 가격
+          imageSrc: 'https://via.placeholder.com/150', // 임시 이미지
+          imageAlt: `${menu.menuName} 이미지` // 이미지 설명
+        }));
+      }
     }
   } catch (error) {
-    console.error('Login error:', error);
-  } finally {
-    console.log('항상 마지막에 실행');
+    console.error('Error fetching menu:', error);
   }
 };
+
+// API 호출 후 카테고리 및 메뉴 데이터를 가져오는 로직
 onMounted(() => {
-  axios.get(`${HOST}/api/order/category`)
-        .then(response =>{
-          if (response.status === 200) {
-            console.log(response.data);
-            navigation.value.categories = response.data;
-          }
-        })
-        .catch(error => {
-          console.error('get category error: ', error);
-        });
+  axios.get(axios.fixUrl('/categories'))
+    .then(response => {
+      if (response.status === 200 && response.data._embedded) {
+        // API에서 받은 데이터를 navigation.categories에 매핑
+        navigation.value.categories = response.data._embedded.categories.map((category, index) => ({
+          id: index + 1, // id는 index를 사용
+          name: category.categoryName, // API의 categoryName 필드 매핑
+          featured: [] // 카테고리 내 메뉴(현재는 빈 배열로 설정, 나중에 채워야 함)
+        }));
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching categories:', error);
+    });
   const storeName = localStorage.getItem('store_name');
   if (!storeName) {
     alert("메뉴를 불러오지 못했습니다. 로그인해서 가게를 알려주세요.")

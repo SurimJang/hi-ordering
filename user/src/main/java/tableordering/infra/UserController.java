@@ -25,7 +25,7 @@ public class UserController {
     // TODO: keycloack 정상화 시 변경
     private final String mockUsername = "test";
     private final String mockPassword = "1234";
-    private final String storeName = "Test Store";
+    private final String storeName = "이루다제면소 일산점 ";
 
     // 로그인 API
     @PostMapping("/login")

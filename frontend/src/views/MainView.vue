@@ -15,7 +15,7 @@ onMounted(() => {
         <DialogPanel class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div class="flex items-center justify-between">
             <a href="#" class="-m-1.5 p-1.5">
-              <span class="sr-only">Hisistant</span>
+              <span class="sr-only">Hi-Order</span>
               <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="" />
             </a>
             <button type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700" @click="mobileMenuOpen = false">
@@ -48,8 +48,8 @@ onMounted(() => {
           </div>
         </div>
         <div class="text-center">
-          <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Hisistant to enrich your Online business</h1>
-          <p class="mt-6 text-lg leading-8 text-gray-600">하이시스턴트를 통해 더 편한 테이블 오더 서비스를 체험해보세요. 매출 시각화와 제공해드리는 인사이트를 통해 메뉴 선정, 매출 전략, 재고 관리를 도와드릴게요.</p>
+          <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Hi-Order to enrich your F&B business</h1>
+          <p class="mt-6 text-lg leading-8 text-gray-600">하이오더를 통해 더 편한 테이블 오더 서비스를 체험해보세요. <br>매출 시각화와 제공해드리는 인사이트를 통해 메뉴 선정, 매출 전략, 재고 관리를 도와드릴게요.</p>
 
           <div v-if="store_name" class="mt-10 flex flex-col items-center justify-center gap-y-4">
             <a href="#" class="text-md font-semibold leading-6 text-gray-900 block">
