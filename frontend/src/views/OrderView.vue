@@ -138,7 +138,7 @@
                                       <span class="absolute inset-0 z-10" aria-hidden="true" />
                                       {{ item.menu_name }}
                                     </a>
-                                    <p aria-hidden="true" class="mt-1">\{{ item.price }}</p>
+                                    <p aria-hidden="true" class="mt-1">{{ item.price }}원</p>
                                     <div  class="mt-6 z-10">
                                       <div class="relative flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
                                       >주문에 추가<span class="sr-only">, {{ item.menu_name }}</span></div>
@@ -313,7 +313,7 @@ const navigation = ref({
   ]
 });
 
-const HOST = "http://localhost:8080";
+const HOST = "http://localhost:8088";
 const cartStore = useCartStore()
 
 const toggleCart = () => {
@@ -325,29 +325,44 @@ const addToCart = (item) => {
 
 const getMenu = async (category_id) => {
   try {
-    const response = await axios.get(`${HOST}/api/order/menu/`+category_id);
-
+    const response = await axios.get(`${HOST}/menus/search/findByStoreIdAndCategoryId?storeId=1&categoryId=${category_id}`);
     if (response.status === 200) {
+      console.log(response.data);
+      // 해당 카테고리의 메뉴 목록을 가져와서 featured 배열에 맞게 매핑
       const category = navigation.value.categories.find(category => category.id === category_id);
-      category.featured = response.data;
+      category.featured = response.data._embedded.menus.map(menu => ({
+        id: menu._links.self.href.split('/').pop(), // 메뉴 ID는 self 링크에서 추출
+        menu_name: menu.menuName,   // 메뉴 이름
+        price: menu.menuPrice,      // 메뉴 가격
+        imageSrc: 'https://placekitten.com/200/200', // 메뉴 이미지 (임시 이미지)
+        imageAlt: `${menu.menuName} 이미지`,  // 이미지 대체 텍스트
+        href: menu._links.self.href  // 메뉴 상세보기 링크
+      }));
     }
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('메뉴를 불러오는 중 오류 발생:', error);
   } finally {
     console.log('항상 마지막에 실행');
   }
 };
 onMounted(() => {
-  axios.get(`${HOST}/api/order/category`)
-        .then(response =>{
-          if (response.status === 200) {
-            console.log(response.data);
-            navigation.value.categories = response.data;
-          }
-        })
-        .catch(error => {
-          console.error('get category error: ', error);
-        });
+  axios.get(`${HOST}/categories?storeId=1`)
+    .then(response => {
+      if (response.status === 200) {
+        // 응답 데이터에서 카테고리 정보를 가져옴
+        const categoriesData = response.data._embedded.categories;
+        // 카테고리를 매핑하여 필요한 속성만 추출
+        navigation.value.categories = categoriesData.map(category => ({
+          id: category._links.self.href.split('/').pop(), // id는 URL의 마지막 부분에서 추출
+          name: category.categoryName,  // 카테고리 이름
+          href: category._links.self.href,  // self 링크
+          featured: []  // 초기 featured는 빈 배열로 설정, 나중에 채워질 수 있음
+        }));
+      }
+    })
+    .catch(error => {
+      console.error('get category error: ', error);
+    });
   const storeName = localStorage.getItem('store_name');
   if (!storeName) {
     alert("메뉴를 불러오지 못했습니다. 로그인해서 가게를 알려주세요.")

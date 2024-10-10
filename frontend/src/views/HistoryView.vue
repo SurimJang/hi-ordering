@@ -56,7 +56,7 @@ function getMenuPriceById(menuId) {
   
   onMounted(() => {
     // store_id가 1인 메뉴를 먼저 가져오는 요청
-    axios.get(`${HOST}/menus?store_id=1`)
+    axios.get(`${HOST}/menus/search/findByStoreId?storeId=1&size=10000`)
       .then(response => {
         if (response.status === 200) {
           menus.value = response.data._embedded.menus;
