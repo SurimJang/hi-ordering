@@ -16,7 +16,7 @@ import java.util.Date;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Menu_table")
+@Table(name = "menu", schema = "menu")
 @Data
 
 // <<< DDD / Aggregate Root
@@ -62,13 +62,12 @@ public class Menu {
         for (OrderMenu orderMenu : orderPlacedEvent.getOrderMenus()) {
             repository().findById(orderMenu.getMenuId()).ifPresent(menu -> {
                 if (menu.getQty() >= orderMenu.getQty()) {
-                    // 재고 감소
-                    menu.setQty(menu.getQty() - orderMenu.getQty());
-                    repository().save(menu);
-
                     // 재고가 감소된 메뉴 리스트에 추가
                     decreasedMenus.add(menu);
                 }
+                // 재고 감소
+                menu.setQty(menu.getQty() - orderMenu.getQty());
+                repository().save(menu);
             });
         }
 

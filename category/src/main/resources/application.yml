@@ -4,13 +4,19 @@ server:
 spring:
   application:
     name: category
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
 ---
-
 spring:
   profiles: default
   jpa:
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: update
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
@@ -30,14 +36,14 @@ spring:
       bindings:
         event-in:
           group: category
-#<<< EDA / Topic Name
+          #<<< EDA / Topic Name
           destination: tableordering
-#>>> EDA / Topic Name
+          #>>> EDA / Topic Name
           contentType: application/json
         event-out:
-#<<< EDA / Topic Name
+          #<<< EDA / Topic Name
           destination: tableordering
-#>>> EDA / Topic Name
+          #>>> EDA / Topic Name
           contentType: application/json
 
 logging:
@@ -45,14 +51,17 @@ logging:
     org.hibernate.type: trace
     org.springframework.cloud: debug
 
-
 server:
   port: 8087
 
 ---
-
 spring:
   profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres-service:5432/postgres
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
   jpa:
     properties:
       hibernate:
@@ -80,5 +89,3 @@ spring:
         event-out:
           destination: tableordering
           contentType: application/json
-
-

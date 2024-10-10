@@ -4,13 +4,19 @@ server:
 spring:
   application:
     name: menu
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
 ---
-
 spring:
   profiles: default
   jpa:
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: update
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
@@ -30,14 +36,14 @@ spring:
       bindings:
         event-in:
           group: menu
-#<<< EDA / Topic Name
+          #<<< EDA / Topic Name
           destination: tableordering
-#>>> EDA / Topic Name
+          #>>> EDA / Topic Name
           contentType: application/json
         event-out:
-#<<< EDA / Topic Name
+          #<<< EDA / Topic Name
           destination: tableordering
-#>>> EDA / Topic Name
+          #>>> EDA / Topic Name
           contentType: application/json
 
 logging:
@@ -46,20 +52,25 @@ logging:
     org.springframework.cloud: debug
 
 api:
-  url: 
-    menu: localhost:8086 
-    
+  url:
+    menu: localhost:8086
 
 server:
   port: 8086
 
 ---
-
 spring:
   profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgres-service:5432/postgres
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
   jpa:
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: update
         show_sql: true
         format_sql: true
         implicit_naming_strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
@@ -86,7 +97,5 @@ spring:
           contentType: application/json
 
 api:
-  url: 
-    menu: menu:8080 
-    
-
+  url:
+    menu: menu:8080

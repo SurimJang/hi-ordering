@@ -10,7 +10,7 @@ import tableordering.domain.PaymentCancelledEvent;
 import tableordering.domain.PaymentCompleteEvent;
 
 @Entity
-@Table(name = "Payment_table")
+@Table(name = "payment", schema = "payment")
 @Data
 // <<< DDD / Aggregate Root
 public class Payment {
