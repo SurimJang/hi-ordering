@@ -6,6 +6,7 @@ CREATE SCHEMA IF NOT EXISTS "payment";
 CREATE SCHEMA IF NOT EXISTS "sales";
 CREATE SCHEMA IF NOT EXISTS "category";
 
+CREATE SEQUENCE hibernate_sequence START WITH 1 INCREMENT BY 1;
 -- 테이블 생성
 CREATE TABLE IF NOT EXISTS "user"."user" (
     id SERIAL PRIMARY KEY,
@@ -16,7 +17,6 @@ CREATE TABLE IF NOT EXISTS "user"."user" (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-DROP TABLE "category"."category";
 CREATE TABLE IF NOT EXISTS "category"."category" (
     id SERIAL PRIMARY KEY,
     category_name VARCHAR(100) NOT NULL,
@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS "category"."category" (
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES "user"."user" (id)
 );
 
-DROP TABLE "menu"."menu";
 CREATE TABLE IF NOT EXISTS "menu"."menu" (
     id SERIAL PRIMARY KEY,
     menu_name VARCHAR(100) NOT NULL,
@@ -37,13 +36,20 @@ CREATE TABLE IF NOT EXISTS "menu"."menu" (
 CREATE TABLE IF NOT EXISTS "order"."order" (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
-    menus_id INT[] NOT NULL,
-    qty INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     order_status VARCHAR(50) DEFAULT 'none',
     payment_amount INT DEFAULT 0,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES "user"."user" (id)
+);
+
+CREATE TABLE IF NOT EXISTS "order"."order_menus" (
+    id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL,
+    menu_id INT NOT NULL,
+    qty INT NOT NULL,
+    CONSTRAINT fk_order_id FOREIGN KEY (order_id) REFERENCES "order"."order" (id),
+    CONSTRAINT fk_menu_id FOREIGN KEY(menu_id) REFERENCES "menu"."menu"(id)
 );
 
 CREATE TABLE IF NOT EXISTS "payment"."payment" (
@@ -133,10 +139,28 @@ VALUES
 ('청하', 4000, 1, 7),
 ('진로이즈백', 4000, 1, 7);
 
-INSERT INTO "order"."order" (user_id, menus_id, qty, created_at, updated_at, order_status, payment_amount)
+INSERT INTO "order"."order" (user_id, created_at, updated_at, order_status, payment_amount)
 VALUES
-(1, ARRAY[1, 5, 10, 37], 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 28500),  -- 소바, 들기름소바, 붓가케 우동, 간장계란밥
-(1, ARRAY[3, 7], 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 18000),           -- 소바 곱빼기, 한돈 수제돈가츠
-(1, ARRAY[4, 11], 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 16500),          -- 비빔소바, 냉우동
-(1, ARRAY[6, 13, 22], 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 25500),      -- 온소바, 김치나베 돈가츠우동, 카라이 우동
-(1, ARRAY[37, 38, 43, 47], 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 12000); -- 간장계란밥, 공기밥, 음료, 구슬아이스크림
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 28500),  -- 소바, 들기름소바, 붓가케 우동, 간장계란밥
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 18000),           -- 소바 곱빼기, 한돈 수제돈가츠
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 16500),          -- 비빔소바, 냉우동
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 25500),      -- 온소바, 김치나베 돈가츠우동, 카라이 우동
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 12000); -- 간장계란밥, 공기밥, 음료, 구슬아이스크림
+
+INSERT INTO "order"."order_menus" (order_id, menu_id, qty)
+VALUES
+(1,1,1),
+(1,5,2),
+(1,10,3),
+(1,37,1),
+(2,3,1),
+(2,7,2),
+(3,4,1),
+(3,11,1),
+(4,6,1),
+(4,13,2),
+(4,22,1),
+(5,37,1),
+(5,38,2),
+(5,43,1),
+(5,47,2);

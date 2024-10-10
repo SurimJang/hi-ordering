@@ -25,11 +25,11 @@ services:
     image: postgres:latest
     container_name: postgres_container
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
-      POSTGRES_DB: postgres               # 기본 데이터베이스 이름
-      POSTGRES_USER: postgres           # 사용자 이름
-      POSTGRES_PASSWORD: admin    # 사용자 비밀번호
+      POSTGRES_DB: postgres # 기본 데이터베이스 이름
+      POSTGRES_USER: postgres # 사용자 이름
+      POSTGRES_PASSWORD: admin # 사용자 비밀번호
     volumes:
-      # - ./postgres/azurefile:/var/lib/postgresql/data    
+      # - ./postgres/azurefile:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql

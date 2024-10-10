@@ -13,7 +13,7 @@ public class OrderPlacedEvent extends AbstractEvent {
 
     private Long id;
     private Long userId;
-    private List<Long> menuId;
+    private List<OrderMenu> orderMenus;
     private Integer qty;
     private Date createdAt;
     private Date updatedAt;
@@ -27,4 +27,4 @@ public class OrderPlacedEvent extends AbstractEvent {
         super();
     }
 }
-//>>> DDD / Domain Event
+// >>> DDD / Domain Event
