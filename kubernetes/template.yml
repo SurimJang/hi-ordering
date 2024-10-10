@@ -239,7 +239,7 @@ spec:
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:
-          claimName: postgres-pvc
+          claimName: azurefile
       - name: init-sql-config
         configMap:
           name: init-sql-config
