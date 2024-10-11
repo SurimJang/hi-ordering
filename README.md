@@ -64,24 +64,29 @@ KT의 테이블오더 서비스 '하이오더'를 클라우드 네이티브 환�
     1. 기존 모놀리식 설계
         <p align="center">
 	   <img width="926" alt="스크린샷 2024-10-11 오전 10 08 49" src="https://github.com/user-attachments/assets/46ebfc35-f93b-4c55-9767-1b2548b0e1ed" align="center">
-            <br><em>캡션</em>
+            <br><em>단일 서버 내에 여러 도메인의 서비스를 운영</em>
         </p>
 
 	2. 주요 이벤트 도출
         <p align="center">
             <img width="905" alt="table-ordering-only-events" src="https://github.com/user-attachments/assets/c0141820-4ee0-48ef-a13a-bcbf3d9d6382" align="center">
-            <br><em>캡션</em>
+            <br><em>도메인 중심의 이벤트</em>
         </p>
 
     3. 완성된 1차 모형
         <p align="center">
             <img width="1110" alt="table-ordering-eventstorming" src="https://github.com/user-attachments/assets/f7fc81fa-7146-4c2f-ac4f-dd461738b5dc">
-            <br><em>캡션</em>
+            <br><em>도메인별 바운디드 컨텍스트로 묶은 그림</em>
         </p>
 
+    4. 결정된 최종 모형
+	    <p align="center">
+            <img width="1130" alt="table-ordering-eventstorming-5th" src="https://github.com/user-attachments/assets/09dc48cd-1b69-47b9-ba60-8daaf66cd367">
+            <br><em>불필요한 요소 제거(예: Command가 아닌 로그인 기능 제외) 및 Aggregates 속성 보완</em>
+        </p>
 
 ## II. 구현
-* DDD의 적용  
+* **도메인 주도 설계(DDD)의 적용**
 
 1. Order
 ```java
@@ -183,7 +188,11 @@ public class Order {
 // >>> DDD / Aggregate Root
 
 ```
+
 2. Menu
+- Saga 기반 이벤트 드리븐 아키텍처
+- 보상 트랜잭션(Compensation Transaction) 패턴 적용
+    - 데이터베이스의 롤백으로 컨시스턴시를 맞추는게 아니라 보상 트랜잭션으로 데이터를 동기화
 ```java
 @Entity
 @Table(name = "menu", schema = "menu")
@@ -278,9 +287,9 @@ public class Menu {
 
 }
 ```
+
 3. OrderMenu
 ```java
-
 @Embeddable
 @Data
 public class OrderMenu {
@@ -336,7 +345,6 @@ public class User {
 ```
 5. Category
 ```java
-
 @Entity
 @Table(name = "category", schema = "category")
 @Data
@@ -373,7 +381,6 @@ public class Category {
 ```
 6. Payment
 ```java
-
 @Entity
 @Table(name = "payment", schema = "payment")
 @Data
@@ -446,43 +453,132 @@ public class Payment {
 
 }
 // >>> DDD / Aggregate Root
-
 ```
+
+* **이벤트 기반 설계(EDA)의 적용**
+
 ## III. 운영
 
-```yaml
- - 할 수 있다!
+* **k8s 클러스터 구성**
+```bash
+$ kubectl get all
+
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/category-79d947cfdd-kcjxk     1/1     Running   0          33m
+pod/frontend-7ffbbcdf98-9mc7n     1/1     Running   0          107s
+pod/management-84567f5f9c-vdgms   1/1     Running   0          33m
+pod/menu-849cd8d48b-zczj4         1/1     Running   0          26m
+pod/my-kafka-0                    1/1     Running   0          17h
+pod/order-7b85d5c94d-c7dq9        1/1     Running   0          33m
+pod/payment-55c44cfc8b-5qqcn      1/1     Running   0          33m
+pod/postgres-695c7fdf88-trdql     1/1     Running   0          33m
+pod/user-545f7b8477-bfj4t         1/1     Running   0          33m
+
+NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+service/category           ClusterIP   10.0.54.174    <none>        8080/TCP   33m
+service/frontend           ClusterIP   10.0.70.187    <none>        8080/TCP   33m
+service/kubernetes         ClusterIP   10.0.0.1       <none>        443/TCP    33m
+service/management         ClusterIP   10.0.164.176   <none>        8080/TCP   33m
+service/menu               ClusterIP   10.0.211.207   <none>        8080/TCP   33m
+service/order              ClusterIP   10.0.1.34      <none>        8080/TCP   33m
+service/payment            ClusterIP   10.0.237.15    <none>        8080/TCP   33m
+service/postgres-service   ClusterIP   10.0.21.5      <none>        5432/TCP   33m
+service/user               ClusterIP   10.0.151.91    <none>        8080/TCP   33m
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/category     1/1     1            1           33m
+deployment.apps/frontend     1/1     1            1           33m
+deployment.apps/management   1/1     1            1           33m
+deployment.apps/menu         1/1     1            1           33m
+deployment.apps/order        1/1     1            1           33m
+deployment.apps/payment      1/1     1            1           33m
+deployment.apps/postgres     1/1     1            1           33m
+deployment.apps/user         1/1     1            1           33m
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/category-79d947cfdd     1         1         1       33m
+replicaset.apps/frontend-7c69fb6f9b     0         0         0       33m
+replicaset.apps/frontend-7ffbbcdf98     1         1         1       108s
+replicaset.apps/frontend-bfd749d55      0         0         0       4m18s
+replicaset.apps/management-84567f5f9c   1         1         1       33m
+replicaset.apps/menu-567f5b69f7         0         0         0       33m
+replicaset.apps/menu-849cd8d48b         1         1         1       26m
+replicaset.apps/order-7b85d5c94d        1         1         1       33m
+replicaset.apps/payment-55c44cfc8b      1         1         1       33m
+replicaset.apps/postgres-695c7fdf88     1         1         1       33m
+replicaset.apps/user-545f7b8477         1         1         1       33m
+
+NAME                        READY   AGE
+statefulset.apps/my-kafka   1/1     17h
 ```
 
-## 환경설정
-* init.sh
-```sh
-sudo apt-get update
-sudo apt-get install net-tools
-sudo apt install iputils-ping
-pip install httpie
+* **Ingress 설정**
+```bash
+$ kubectl describe ingress
 
-#  << kubectl >>
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-# << Azure aks >>
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash 
-
-#  << NVM >>
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-. ~/.nvm/nvm.sh
-nvm install 14.19.0 && nvm use 14.19.0
-export NODE_OPTIONS=--openssl-legacy-provider
-
-# << helm >>
-curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
-chmod 700 get_helm.sh
-./get_helm.sh
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update
-
-#  << Docker >>
-cd infra
-docker-compose up
+Name:             hiorder-ingress
+Labels:           <none>
+Namespace:        default
+Address:          20.214.195.16
+Ingress Class:    nginx
+Default backend:  <default>
+Rules:
+  Host        Path  Backends
+  ----        ----  --------
+  *           
+              /              frontend:8080 (10.244.1.246:8080)
+              /orders        order:8080 (10.244.0.100:8080)
+              /menus         menu:8080 (10.244.0.195:8080)
+              /categories    category:8080 (10.244.0.102:8080)
+              /managements   management:8080 (10.244.2.185:8080)
+              /payments      payment:8080 (10.244.0.53:8080)
+              /users         user:8080 (10.244.1.204:8080)
+Annotations:  ingressclass.kubernetes.io/is-default-class: true
+              nginx.ingress.kubernetes.io/ssl-redirect: false
+Events:       <none>
 ```
+
+* **Autoscaler**
+```bash
+# 주문 서비스 트래픽 증가 시 리소스 증가 설정
+```
+
+* **Config Map**
+    - Config Map 목록
+    
+    `$ kubectl get configmap`
+
+    ```bash
+    NAME               DATA   AGE
+    init-sql-config    1      17h
+    kube-root-ca.crt   1      3d1h
+    my-kafka-scripts   1      17h
+    ```
+
+    - postgresql: 초기화 시 실행
+
+    `$ kubectl get configmap init-sql-config -o yaml`
+
+    ```yaml
+    apiVersion: v1
+    data:
+    init.sql: "(내용 생략)"
+    kind: ConfigMap
+    metadata:
+    creationTimestamp: "2024-10-10T07:53:05Z"
+    name: init-sql-config
+    namespace: default
+    resourceVersion: "839369"
+    uid: dde923d9-3958-4eec-b5f5-abeaf3ee3a65
+    ```
+
+* **Grafana & Prometheus**
+
+<p align="center">
+    <img width="1280" alt="grafana" src="https://github.com/user-attachments/assets/3c54cf5c-a1ad-4344-898b-f4865023e419" align="center">
+</p>
+<p align="center">
+<img width="1280" alt="grafana2" src="https://github.com/user-attachments/assets/0477707d-9214-4ae0-b3d5-bddbdfff968d" align="center">
+    <br><em>그라파나 대시보드 접속 화면</em>
+</p>
+쿠버네티스 리소스 모니터링을 위한 그라파나 및 프로메테우스 설정.

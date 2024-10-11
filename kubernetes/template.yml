@@ -141,7 +141,7 @@ spec:
     spec:
       containers:
         - name: menu
-          image: jangsoowang/menu:v1
+          image: jangsoowang/menu:v2
           ports:
             - containerPort: 8080
 
@@ -187,7 +187,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: jangsoowang/frontend:241010
+          image: jangsoowang/frontend:v3
           ports:
             - containerPort: 8080
 
