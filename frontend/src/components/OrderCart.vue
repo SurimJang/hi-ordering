@@ -115,31 +115,29 @@ const subtotal = computed(() => {
 
 const confirm = () => {
   const orderDetails = products.value.map(product => ({
-    menuId: product.id,  // 메뉴 ID
-    qty: product.qty     // 수량
+    menuId: product.id,
+    qty: product.qty
   }));
 
   const payload = {
-    userId: 1,  // 유저 ID, 필요시 동적으로 변경 가능
-    paymentAmount: subtotal.value,  // 총 결제 금액
-    orderMenus: orderDetails,  // 주문한 메뉴 목록
-    orderStatus: "placed"  // 주문 상태
+    userId: 1,
+    orderMenus: orderDetails,
+    paymentAmount: subtotal.value
   };
 
-  // axios로 서버에 주문 생성 요청
-  axios.post(axios.fixUrl('/orders'), payload)
-    .then(response => {
-      if (response.status === 201) {
-        console.log('Order confirmed:', response.data);
-        // 주문이 완료되면 장바구니를 리셋하고 모달을 염
-        cartStore.resetCart();
-        modalOpen.value = true;
-      }
-    })
-    .catch(error => {
-      console.error('Order confirmation error:', error);
-      // 오류 처리 로직을 추가적으로 작성할 수 있음
-    });
+  axios.post(`${HOST}/orders`, payload)
+      .then(response => {
+        if (response.status === 201) {
+          console.log('Order confirmed:', response.data);
+          // 주문이 성공적으로 완료된 후 장바구니를 비우거나 사용자가 알림을 받도록 추가 작업을 수행할 수 있습니다.
+          cartStore.resetCart();
+          modalOpen.value = true;
+        }
+      })
+      .catch(error => {
+        console.error('Order confirmation error:', error);
+        // 오류 처리 로직을 추가할 수 있습니다. 예를 들어, 사용자에게 오류 메시지를 표시하는 것 등.
+      });
 };
 
 // const confirm = () => {

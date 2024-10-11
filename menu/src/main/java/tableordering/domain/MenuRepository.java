@@ -11,10 +11,10 @@ import tableordering.domain.*;
 //<<< PoEAA / Repository
 @RepositoryRestResource(collectionResourceRel = "menus", path = "menus")
 public interface MenuRepository extends PagingAndSortingRepository<Menu, Long> {
-    @Query(
-        value = "select menu " +
-        "from Menu menu " +
-        "where(:storeId is null or menu.storeId = :storeId)"
-    )
-    List<Menu> findByMenuList(Long storeId, Pageable pageable);
+
+    // storeId와 categoryId로 필터링하는 메서드
+    List<Menu> findByStoreIdAndCategoryId(Long storeId, Long categoryId, Pageable pageable);
+
+    // storeId 필터링하는 메서드
+    List<Menu> findByStoreId(Long storeId, Pageable pageable);
 }
