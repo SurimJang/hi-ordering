@@ -249,11 +249,11 @@ const addToCart = (item) => {
 // 메뉴 데이터를 가져와서 featured를 채우는 함수
 const getMenu = async (categoryId) => {
   try {
-    const response = await axios.get(`${HOST}/menus/search/findByStoreIdAndCategoryId?storeId=1&categoryId=${category_id}`);
+    const response = await axios.get(axios.fixUrl(`/menus/search/findByStoreIdAndCategoryId?storeId=1&categoryId=${categoryId}`));
     if (response.status === 200) {
       console.log(response.data);
       // 해당 카테고리의 메뉴 목록을 가져와서 featured 배열에 맞게 매핑
-      const category = navigation.value.categories.find(category => category.id === category_id);
+      const category = navigation.value.categories.find(category => category.id === categoryId);
       category.featured = response.data._embedded.menus.map(menu => ({
         id: menu._links.self.href.split('/').pop(), // 메뉴 ID는 self 링크에서 추출
         menu_name: menu.menuName,   // 메뉴 이름
@@ -272,7 +272,7 @@ const getMenu = async (categoryId) => {
 
 // API 호출 후 카테고리 및 메뉴 데이터를 가져오는 로직
 onMounted(() => {
-  axios.get(`${HOST}/categories?storeId=1`)
+  axios.get(axios.fixUrl(`/categories?storeId=1`))
     .then(response => {
       if (response.status === 200) {
         // 응답 데이터에서 카테고리 정보를 가져옴
