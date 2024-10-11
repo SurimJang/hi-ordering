@@ -97,7 +97,7 @@ function onClickCancel(order_history) {
     };
 
     // PUT 요청을 보내어 주문 상태 업데이트
-    axios.put(`${HOST}/orders/${order_history.orderId}`, payload)
+    axios.put(axios.fixUrl(`/orders/${order_history.orderId}`), payload)
     .then((response) => {
         if (response.status === 200) {
             console.log('Order cancelled successfully');
@@ -113,14 +113,14 @@ function onClickCancel(order_history) {
 onMounted(() => {
   // store_id가 1인 메뉴를 먼저 가져오는 요청
   axios
-    .get(`${HOST}/menus/search/findByStoreId?storeId=1&size=10000`)
+    .get(axios.fixUrl(`/menus/search/findByStoreId?storeId=1&size=10000`))
     .then((response) => {
       if (response.status === 200) {
         menus.value = response.data._embedded.menus;
 
         // 메뉴 데이터를 가져온 후 주문 내역을 가져오는 요청
         axios
-          .get(`${HOST}/orders?sort=createdAt,desc`)
+          .get(axios.fixUrl(`/orders?sort=createdAt,desc`))
           .then((response) => {
             if (response.status === 200) {
               const orders = response.data._embedded.orders;
