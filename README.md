@@ -626,6 +626,38 @@ order   Deployment/order   153%/50%   1         3         3          4m1s
     resourceVersion: "839369"
     uid: dde923d9-3958-4eec-b5f5-abeaf3ee3a65
     ```
+* **Secret**
+
+```yaml
+# postgres deployment의 pass가 노출되어 secret 적용
+...
+env:
+            - name: POSTGRES_DB
+              value: 'postgres'
+            - name: POSTGRES_USER
+              value: 'postgres'
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret  # Secret 이름
+                  key: POSTGRES_PASSWORD  # Secret에서 참조할 키
+```
+
+```bash
+$ kubectl get secret postgres-secret -o yaml
+
+apiVersion: v1
+data:
+  POSTGRES_PASSWORD: YWRtaW4=
+kind: Secret
+metadata:
+  creationTimestamp: "2024-10-11T03:21:58Z"
+  name: postgres-secret
+  namespace: default
+  resourceVersion: "1133713"
+  uid: 9b272af9-1e17-4880-9c79-244bd57973f8
+type: Opaque
+```
 
 * **Grafana & Prometheus**
 

@@ -206,7 +206,10 @@ spec:
             - name: POSTGRES_USER
               value: 'postgres'
             - name: POSTGRES_PASSWORD
-              value: 'admin'
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret  # Secret 이름
+                  key: POSTGRES_PASSWORD  # Secret에서 참조할 키
           volumeMounts:
             - mountPath: /var/lib/postgresql/data # 영구 저장소 경로
               name: postgres-storage
