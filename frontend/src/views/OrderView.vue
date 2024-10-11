@@ -135,7 +135,7 @@
                                     </div>
                                     <a class="mt-4 block font-medium text-gray-900">
                                       <span class="absolute inset-0 z-10" aria-hidden="true" />
-                                      {{ item.name }}
+                                      {{ item.menu_name }}
                                     </a>
                                     <p aria-hidden="true" class="mt-1">{{ item.price }}원</p>
                                     <div  class="mt-6 z-10">

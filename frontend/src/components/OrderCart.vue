@@ -36,7 +36,7 @@
                               <div>
                                 <div class="flex justify-between text-base font-medium text-gray-900">
                                   <h3>
-                                    <a :href="product.href">{{ product.name }}</a>
+                                    <a :href="product.href">{{ product.menu_name }}</a>
                                   </h3>
                                   <p class="ml-4">{{ formatPrice(product.price) }} 원</p>
                                 </div>
@@ -125,7 +125,7 @@ const confirm = () => {
     paymentAmount: subtotal.value
   };
 
-  axios.post(`${HOST}/orders`, payload)
+  axios.post(axios.fixUrl(`/orders`), payload)
       .then(response => {
         if (response.status === 201) {
           console.log('Order confirmed:', response.data);
