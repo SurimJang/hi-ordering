@@ -143,26 +143,26 @@ VALUES
 
 INSERT INTO "order"."order" (user_id, created_at, updated_at, order_status, payment_amount)
 VALUES
-(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 28500),  -- 소바, 들기름소바, 붓가케 우동, 간장계란밥
-(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 18000),           -- 소바 곱빼기, 한돈 수제돈가츠
-(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 16500),          -- 비빔소바, 냉우동
-(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 25500),      -- 온소바, 김치나베 돈가츠우동, 카라이 우동
-(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'completed', 12000); -- 간장계란밥, 공기밥, 음료, 구슬아이스크림
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'OrderConfirmed', 28500),  -- 소바, 들기름소바, 붓가케 우동, 간장계란밥
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'OrderConfirmed', 18000),           -- 소바 곱빼기, 한돈 수제돈가츠
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'OrderConfirmed', 16500),          -- 비빔소바, 냉우동
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'OrderConfirmed', 25500),      -- 온소바, 김치나베 돈가츠우동, 카라이 우동
+(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'OrderConfirmed', 12000); -- 간장계란밥, 공기밥, 음료, 구슬아이스크림
 
 INSERT INTO "order"."order_menus" (order_id, menu_id, qty)
 VALUES
 (1,1,1),
 (1,5,2),
 (1,10,3),
-(1,37,1),
+(1,3,1),
 (2,3,1),
 (2,7,2),
 (3,4,1),
 (3,11,1),
 (4,6,1),
 (4,13,2),
-(4,22,1),
-(5,37,1),
-(5,38,2),
-(5,43,1),
-(5,47,2);
+(4,11,1),
+(5,2,1),
+(5,4,2),
+(5,7,1),
+(5,10,2);
