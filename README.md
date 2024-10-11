@@ -86,9 +86,10 @@ KT의 테이블오더 서비스 '하이오더'를 클라우드 네이티브 환�
         </p>
 
 ## II. 구현
-* **도메인 주도 설계(DDD)의 적용**
+* **도메인 주도 및 이벤트 기반 설계의 적용**
 
-1. Order
+1. `Order`
+
 ```java
 @Entity
 @Table(name = "\"order\"", schema = "\"order\"")
@@ -189,7 +190,7 @@ public class Order {
 
 ```
 
-2. Menu
+2. `Menu`
 - Saga 기반 이벤트 드리븐 아키텍처
 - 보상 트랜잭션(Compensation Transaction) 패턴 적용
     - 데이터베이스의 롤백으로 컨시스턴시를 맞추는게 아니라 보상 트랜잭션으로 데이터를 동기화
@@ -284,11 +285,10 @@ public class Menu {
         menuIncresedEvent.publishAfterCommit();
     }
     // >>> Clean Arch / Port Method
-
 }
 ```
 
-3. OrderMenu
+3. `OrderMenu`
 ```java
 @Embeddable
 @Data
@@ -312,7 +312,7 @@ public class OrderMenu {
     // 생략
 }
 ```
-4. User
+4. `User`
 ```java
 @Entity
 @Table(name = "user", schema = "user")
@@ -343,7 +343,7 @@ public class User {
     }
 }
 ```
-5. Category
+5. `Category`
 ```java
 @Entity
 @Table(name = "category", schema = "category")
@@ -377,9 +377,9 @@ public class Category {
     }
 }
 // >>> DDD / Aggregate Root
-
 ```
-6. Payment
+
+6. `Payment`
 ```java
 @Entity
 @Table(name = "payment", schema = "payment")
@@ -455,7 +455,6 @@ public class Payment {
 // >>> DDD / Aggregate Root
 ```
 
-* **이벤트 기반 설계(EDA)의 적용**
 
 ## III. 운영
 
@@ -464,52 +463,61 @@ public class Payment {
 $ kubectl get all
 
 NAME                              READY   STATUS    RESTARTS   AGE
-pod/category-79d947cfdd-kcjxk     1/1     Running   0          33m
-pod/frontend-7ffbbcdf98-9mc7n     1/1     Running   0          107s
-pod/management-84567f5f9c-vdgms   1/1     Running   0          33m
-pod/menu-849cd8d48b-zczj4         1/1     Running   0          26m
-pod/my-kafka-0                    1/1     Running   0          17h
-pod/order-7b85d5c94d-c7dq9        1/1     Running   0          33m
-pod/payment-55c44cfc8b-5qqcn      1/1     Running   0          33m
-pod/postgres-695c7fdf88-trdql     1/1     Running   0          33m
-pod/user-545f7b8477-bfj4t         1/1     Running   0          33m
+pod/category-79d947cfdd-kcjxk     1/1     Running   0          76m
+pod/frontend-7ffbbcdf98-9mc7n     1/1     Running   0          45m
+pod/management-84567f5f9c-vdgms   1/1     Running   0          76m
+pod/menu-849cd8d48b-zczj4         1/1     Running   0          70m
+pod/my-kafka-0                    1/1     Running   0          21m
+pod/order-7d8b759c75-ft4gm        1/1     Running   0          61s
+pod/order-7d8b759c75-q64wg        1/1     Running   0          61s
+pod/order-7d8b759c75-v2wkr        1/1     Running   0          2m27s
+pod/payment-55c44cfc8b-5qqcn      1/1     Running   0          76m
+pod/postgres-695c7fdf88-trdql     1/1     Running   0          76m
+pod/siege                         1/1     Running   0          4m39s
+pod/user-545f7b8477-bfj4t         1/1     Running   0          76m
 
-NAME                       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
-service/category           ClusterIP   10.0.54.174    <none>        8080/TCP   33m
-service/frontend           ClusterIP   10.0.70.187    <none>        8080/TCP   33m
-service/kubernetes         ClusterIP   10.0.0.1       <none>        443/TCP    33m
-service/management         ClusterIP   10.0.164.176   <none>        8080/TCP   33m
-service/menu               ClusterIP   10.0.211.207   <none>        8080/TCP   33m
-service/order              ClusterIP   10.0.1.34      <none>        8080/TCP   33m
-service/payment            ClusterIP   10.0.237.15    <none>        8080/TCP   33m
-service/postgres-service   ClusterIP   10.0.21.5      <none>        5432/TCP   33m
-service/user               ClusterIP   10.0.151.91    <none>        8080/TCP   33m
+NAME                        TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
+service/category            ClusterIP   10.0.54.174    <none>        8080/TCP                     76m
+service/frontend            ClusterIP   10.0.70.187    <none>        8080/TCP                     76m
+service/kubernetes          ClusterIP   10.0.0.1       <none>        443/TCP                      77m
+service/management          ClusterIP   10.0.164.176   <none>        8080/TCP                     76m
+service/menu                ClusterIP   10.0.211.207   <none>        8080/TCP                     76m
+service/my-kafka            ClusterIP   10.0.171.84    <none>        9092/TCP                     21m
+service/my-kafka-headless   ClusterIP   None           <none>        9092/TCP,9094/TCP,9093/TCP   21m
+service/order               ClusterIP   10.0.1.34      <none>        8080/TCP                     76m
+service/payment             ClusterIP   10.0.237.15    <none>        8080/TCP                     76m
+service/postgres-service    ClusterIP   10.0.21.5      <none>        5432/TCP                     76m
+service/user                ClusterIP   10.0.151.91    <none>        8080/TCP                     76m
 
 NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/category     1/1     1            1           33m
-deployment.apps/frontend     1/1     1            1           33m
-deployment.apps/management   1/1     1            1           33m
-deployment.apps/menu         1/1     1            1           33m
-deployment.apps/order        1/1     1            1           33m
-deployment.apps/payment      1/1     1            1           33m
-deployment.apps/postgres     1/1     1            1           33m
-deployment.apps/user         1/1     1            1           33m
+deployment.apps/category     1/1     1            1           76m
+deployment.apps/frontend     1/1     1            1           76m
+deployment.apps/management   1/1     1            1           76m
+deployment.apps/menu         1/1     1            1           76m
+deployment.apps/order        3/3     3            3           76m
+deployment.apps/payment      1/1     1            1           76m
+deployment.apps/postgres     1/1     1            1           76m
+deployment.apps/user         1/1     1            1           76m
 
 NAME                                    DESIRED   CURRENT   READY   AGE
-replicaset.apps/category-79d947cfdd     1         1         1       33m
-replicaset.apps/frontend-7c69fb6f9b     0         0         0       33m
-replicaset.apps/frontend-7ffbbcdf98     1         1         1       108s
-replicaset.apps/frontend-bfd749d55      0         0         0       4m18s
-replicaset.apps/management-84567f5f9c   1         1         1       33m
-replicaset.apps/menu-567f5b69f7         0         0         0       33m
-replicaset.apps/menu-849cd8d48b         1         1         1       26m
-replicaset.apps/order-7b85d5c94d        1         1         1       33m
-replicaset.apps/payment-55c44cfc8b      1         1         1       33m
-replicaset.apps/postgres-695c7fdf88     1         1         1       33m
-replicaset.apps/user-545f7b8477         1         1         1       33m
+replicaset.apps/category-79d947cfdd     1         1         1       76m
+replicaset.apps/frontend-7c69fb6f9b     0         0         0       76m
+replicaset.apps/frontend-7ffbbcdf98     1         1         1       45m
+replicaset.apps/frontend-bfd749d55      0         0         0       47m
+replicaset.apps/management-84567f5f9c   1         1         1       76m
+replicaset.apps/menu-567f5b69f7         0         0         0       76m
+replicaset.apps/menu-849cd8d48b         1         1         1       70m
+replicaset.apps/order-7b85d5c94d        0         0         0       76m
+replicaset.apps/order-7d8b759c75        3         3         3       2m28s
+replicaset.apps/payment-55c44cfc8b      1         1         1       76m
+replicaset.apps/postgres-695c7fdf88     1         1         1       76m
+replicaset.apps/user-545f7b8477         1         1         1       76m
 
 NAME                        READY   AGE
-statefulset.apps/my-kafka   1/1     17h
+statefulset.apps/my-kafka   1/1     21m
+
+NAME                                        REFERENCE          TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/order   Deployment/order   303%/50%   1         3         3          4m17s
 ```
 
 * **Ingress 설정**
@@ -539,8 +547,55 @@ Events:       <none>
 ```
 
 * **Autoscaler**
+
 ```bash
-# 주문 서비스 트래픽 증가 시 리소스 증가 설정
+# order 서비스 트래픽 증가 시 리소스 증가 설정
+
+apiVersion: apps/v1
+kind: Deployment
+...
+    spec:
+      containers:
+        - name: order
+          image: jangsoowang/order:v1
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "200m"
+```
+
+```bash
+# siege로 order 서비스에 부하 적용 후 결과
+
+Transactions:                   2906 hits
+Availability:                  73.93 %
+Elapsed time:                  26.29 secs
+Data transferred:              15.02 MB
+Response time:                  0.18 secs
+Transaction rate:             110.54 trans/sec
+Throughput:                     0.57 MB/sec
+Concurrency:                   19.68
+Successful transactions:        2906
+Failed transactions:            1025
+Longest transaction:            1.27
+Shortest transaction:           0.03
+```
+
+```bash
+$ kubectl get po -w
+NAME                          READY   STATUS    RESTARTS   AGE
+...
+order-7d8b759c75-ft4gm        1/1     Running   0          25s
+order-7d8b759c75-q64wg        1/1     Running   0          25s
+order-7d8b759c75-v2wkr        1/1     Running   0          111s
+...
+```
+
+```bash
+$ kubectl get hpa
+NAME    REFERENCE          TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
+order   Deployment/order   153%/50%   1         3         3          4m1s
 ```
 
 * **Config Map**
@@ -571,6 +626,38 @@ Events:       <none>
     resourceVersion: "839369"
     uid: dde923d9-3958-4eec-b5f5-abeaf3ee3a65
     ```
+* **Secret**
+
+```yaml
+# postgres deployment의 pass가 노출되어 secret 적용
+...
+env:
+            - name: POSTGRES_DB
+              value: 'postgres'
+            - name: POSTGRES_USER
+              value: 'postgres'
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret  # Secret 이름
+                  key: POSTGRES_PASSWORD  # Secret에서 참조할 키
+```
+
+```bash
+$ kubectl get secret postgres-secret -o yaml
+
+apiVersion: v1
+data:
+  POSTGRES_PASSWORD: YWRtaW4=
+kind: Secret
+metadata:
+  creationTimestamp: "2024-10-11T03:21:58Z"
+  name: postgres-secret
+  namespace: default
+  resourceVersion: "1133713"
+  uid: 9b272af9-1e17-4880-9c79-244bd57973f8
+type: Opaque
+```
 
 * **Grafana & Prometheus**
 
