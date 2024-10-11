@@ -63,6 +63,7 @@ KT의 테이블오더 서비스 '하이오더'를 클라우드 네이티브 환�
 
     1. 기존 모놀리식 설계
         <p align="center">
+	   <img width="926" alt="스크린샷 2024-10-11 오전 10 08 49" src="https://github.com/user-attachments/assets/46ebfc35-f93b-4c55-9767-1b2548b0e1ed" align="center">
             <br><em>캡션</em>
         </p>
 
