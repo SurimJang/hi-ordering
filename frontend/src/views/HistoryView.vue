@@ -93,6 +93,7 @@ function onClickCancel(order_history) {
         userId: 1,  // 사용자 ID
         createdAt: order_history.createdAt,
         updatedAt: new Date().toISOString(),
+        paymentAmount: order_history.paymentAmount,
         orderMenus: order_history.orderMenus
     };
 
